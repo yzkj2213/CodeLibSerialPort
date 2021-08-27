@@ -101,7 +101,7 @@ public class SerialConnectJNI extends SerialConnect {
                 }
             } catch (IOException e) {
                 e.printStackTrace();
-                isOpen = false;
+                close();
                 if (connectListener != null)
                     connectListener.onErrorConnect(connectNum);
             } catch (Exception e){
