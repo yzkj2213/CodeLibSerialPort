@@ -3,6 +3,7 @@ package com.izis.serialport.connect;
 import android.text.TextUtils;
 import com.izis.serialport.util.Log;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -98,7 +99,12 @@ public class SerialConnectJNI extends SerialConnect {
 
                     checkData(curReadData);
                 }
-            } catch (Exception e) {
+            } catch (IOException e) {
+                e.printStackTrace();
+                isOpen = false;
+                if (connectListener != null)
+                    connectListener.onErrorConnect(connectNum);
+            } catch (Exception e){
                 e.printStackTrace();
             }
         }
