@@ -30,7 +30,14 @@ android {
 
 // 打包源码
 task sourcesJar(type: Jar) {
-    from android.sourceSets.main.java.srcDirs
+    if (project.hasProperty("kotlin")) {
+        from android.sourceSets.main.java.getSrcDirs()
+    } else if (project.hasProperty("android")) {
+        from android.sourceSets.main.java.sourceFiles
+    } else {
+        println project
+        from sourceSets.main.allSource
+    }
     classifier = 'sources'
 }
 
