@@ -11,7 +11,6 @@ public interface SerialConnectListener {
 
     /**
      * 连接失败
-     *
      */
     void onConnectFail(int connectNum);
 

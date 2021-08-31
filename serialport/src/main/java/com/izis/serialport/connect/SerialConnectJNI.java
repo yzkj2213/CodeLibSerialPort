@@ -1,14 +1,14 @@
 package com.izis.serialport.connect;
 
 import android.text.TextUtils;
+
 import com.izis.serialport.util.Log;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import android_serialport_api.SerialPort;
 import android_serialport_api.SerialPortFinder;
@@ -21,6 +21,7 @@ public class SerialConnectJNI extends SerialConnect {
 
     @Override
     public void open() {
+        if (isOpen) return;
         connectNum++;
         SerialPortFinder mSerialPortFinder = new SerialPortFinder();
         String[] entryValues = mSerialPortFinder.getAllDevicesPath();
@@ -32,8 +33,14 @@ public class SerialConnectJNI extends SerialConnect {
         }
         Log.i("查找到设备：" + Arrays.toString(entryValues));
 
-        List<String> devices = new ArrayList<>(Arrays.asList(entryValues));
-        if (!devices.contains("/dev/ttyUSB0")) {
+        String device = "";
+        for (String item : entryValues) {
+            if (item.contains("/dev/ttyUSB0")) {
+                device = item;
+                break;
+            }
+        }
+        if (device.isEmpty()) {
             Log.w("没有找到相关设备");
             if (connectListener != null)
                 connectListener.onConnectFail(connectNum);
@@ -42,7 +49,7 @@ public class SerialConnectJNI extends SerialConnect {
 
         try {
             // 打开/dev/ttyUSB0路径设备的串口  ttyUSB0
-            mSerialPort = new SerialPort(new File("/dev/ttyUSB0"), 115200, 0);
+            mSerialPort = new SerialPort(new File(device), 115200, 0);
             mInputStream = mSerialPort.getInputStream();
             mOutputStream = mSerialPort.getOutputStream();
             if (connectListener != null)
@@ -72,15 +79,20 @@ public class SerialConnectJNI extends SerialConnect {
     }
 
     @Override
-    public void writeAndFlush(String data) {
-        if (TextUtils.isEmpty(data)) return;
+    public boolean writeAndFlushNoDelay(String data) {
+        if (TextUtils.isEmpty(data)) {
+            Log.w("写入指令失败：" + data);
+            return false;
+        }
         try {
-            sleep();
-
             mOutputStream.write(data.getBytes());
             mOutputStream.flush();
+            Log.i("写入指令：" + data);
+            return true;
         } catch (Exception e) {
             e.printStackTrace();
+            Log.w("写入指令失败：" + data);
+            return false;
         }
     }
 
@@ -104,17 +116,9 @@ public class SerialConnectJNI extends SerialConnect {
                 close();
                 if (connectListener != null)
                     connectListener.onErrorConnect(connectNum);
-            } catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
-        }
-    }
-
-    private void sleep() {
-        try {
-            Thread.sleep(80);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
         }
     }
 }

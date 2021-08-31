@@ -34,11 +34,30 @@ public abstract class SerialConnect {
     public abstract void close();
 
     /**
-     * 写入数据
+     * 延迟80ms写入数据
      *
      * @param data 数据
+     * @return 写入是否成功
      */
-    public abstract void writeAndFlush(String data);
+    public boolean writeAndFlush(String data){
+        sleep();
+        return writeAndFlushNoDelay(data);
+    }
+    /**
+     * 立即写入数据
+     *
+     * @param data 数据
+     * @return 写入是否成功
+     */
+    public abstract boolean writeAndFlushNoDelay(String data);
+
+    void sleep() {
+        try {
+            Thread.sleep(80);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 
     private String readTemp = ""; // 存储接受到的非完整数据
 
