@@ -99,9 +99,14 @@ public class SerialConnectJNI extends SerialConnect {
     @Override
     public void close() {
         isOpen = false;
-        if (context != null) {
-            context.unregisterReceiver(usbReceiver);
+        try {
+            if (context != null) {
+                context.unregisterReceiver(usbReceiver);
+            }
+        } catch (Exception e) {
+            //防止多次调用close报  Receiver not registered 异常
         }
+
         if (mSerialPort != null)
             mSerialPort.close();
     }

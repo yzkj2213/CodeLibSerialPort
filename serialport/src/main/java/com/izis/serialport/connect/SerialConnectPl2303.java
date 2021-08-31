@@ -122,8 +122,13 @@ public class SerialConnectPl2303 extends SerialConnect {
     public void close() {
         isOpen = false;
         if (mSerialMulti != null) {
-            if (mPlMultiLibReceiver != null)
-                mContext.unregisterReceiver(mPlMultiLibReceiver);
+            try {
+                if (mPlMultiLibReceiver != null)
+                    mContext.unregisterReceiver(mPlMultiLibReceiver);
+            } catch (Exception e) {
+                //防止多次调用close报  Receiver not registered 异常
+            }
+
             mSerialMulti.PL2303Release();
             mSerialMulti = null;
         }

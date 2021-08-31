@@ -167,9 +167,13 @@ public class SerialConnectAPI extends SerialConnect {
     @Override
     public void close() {
         isOpen = false;
-        if (usbPermissionReceiver != null && context != null) {
-            context.unregisterReceiver(usbPermissionReceiver);
-            context.unregisterReceiver(usbReceiver);
+        try {
+            if (usbPermissionReceiver != null && context != null) {
+                context.unregisterReceiver(usbPermissionReceiver);
+                context.unregisterReceiver(usbReceiver);
+            }
+        } catch (Exception e) {
+            //防止多次调用close报  Receiver not registered 异常
         }
         if (usbDeviceConnection != null) {
             usbDeviceConnection.releaseInterface(usbInterface);
