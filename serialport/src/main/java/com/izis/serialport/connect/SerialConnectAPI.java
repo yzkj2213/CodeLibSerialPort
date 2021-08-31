@@ -150,7 +150,7 @@ public class SerialConnectAPI extends SerialConnect {
                 connectNum = 0;
                 Log.i("打开" + device.getDeviceName() + "成功");
                 IntentFilter filter = new IntentFilter(UsbManager.ACTION_USB_DEVICE_DETACHED);
-                context.registerReceiver(usbReceiver, filter);
+                if (context != null) context.registerReceiver(usbReceiver, filter);
                 if (connectListener != null)
                     connectListener.onConnectSuccess();
             } catch (Exception e) {

@@ -75,10 +75,10 @@ public abstract class SerialConnect {
 
         Log.d("初步处理数据:" + readTemp);
 
-        String totalCommands = "";
+        String totalCommands;
         //开头必定为~号
         //缓存中完整数据后的半截数据
-        String tempRest = "";
+        String tempRest;
         if (readTemp.lastIndexOf("#") > 0) {//包含了#号（不包含则说明不包含一个完整的指令）
             if (readTemp.lastIndexOf("#") < readTemp.length() - 1) {//包含了部分下一条指令
                 tempRest = readTemp.substring(readTemp.lastIndexOf("#") + 1); // 得到最后的#号之后的半截数据

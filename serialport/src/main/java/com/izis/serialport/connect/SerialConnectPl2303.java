@@ -74,6 +74,7 @@ public class SerialConnectPl2303 extends SerialConnect {
 
     @Override
     public void open() {
+        if (isOpen) return;
         connectNum++;
         if (mSerialMulti == null) {
             mSerialMulti = new PL2303MultiLib((UsbManager) mContext.getSystemService(Context.USB_SERVICE), mContext, ACTION_USB_PERMISSION);

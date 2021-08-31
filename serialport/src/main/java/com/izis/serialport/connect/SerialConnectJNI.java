@@ -1,23 +1,44 @@
 package com.izis.serialport.connect;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.hardware.usb.UsbDevice;
+import android.hardware.usb.UsbManager;
 import android.text.TextUtils;
-
 import com.izis.serialport.util.Log;
-
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
-
 import android_serialport_api.SerialPort;
 import android_serialport_api.SerialPortFinder;
 
 public class SerialConnectJNI extends SerialConnect {
     private boolean isOpen = false;
+    private final Context context;
     private SerialPort mSerialPort = null;
     private OutputStream mOutputStream = null;
     private InputStream mInputStream = null;
+    private final BroadcastReceiver usbReceiver = new BroadcastReceiver() {
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+
+            if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
+                UsbDevice device = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
+                if (device != null) {
+                    Log.e(device.getDeviceName() + "断开");
+                    close();
+                    if (connectListener != null)
+                        connectListener.onErrorConnect(connectNum);
+                }
+            }
+        }
+    };
+    public SerialConnectJNI(Context context) {
+        this.context = context;
+    }
 
     @Override
     public void open() {
@@ -52,18 +73,22 @@ public class SerialConnectJNI extends SerialConnect {
             mSerialPort = new SerialPort(new File(device), 115200, 0);
             mInputStream = mSerialPort.getInputStream();
             mOutputStream = mSerialPort.getOutputStream();
-            if (connectListener != null)
-                connectListener.onConnectSuccess();
-            Log.i("连接设备成功");
 
-            connectNum = 0;
-            isOpen = true;
             new Thread() {
                 @Override
                 public void run() {
                     requestData();
                 }
             }.start();
+
+            connectNum = 0;
+            isOpen = true;
+            IntentFilter filter = new IntentFilter(UsbManager.ACTION_USB_DEVICE_DETACHED);
+            if (context != null) context.registerReceiver(usbReceiver, filter);
+
+            if (connectListener != null)
+                connectListener.onConnectSuccess();
+            Log.i("连接设备成功");
         } catch (Exception e) {
             Log.e("打开串口失败");
             if (connectListener != null)
@@ -74,6 +99,9 @@ public class SerialConnectJNI extends SerialConnect {
     @Override
     public void close() {
         isOpen = false;
+        if (context != null) {
+            context.unregisterReceiver(usbReceiver);
+        }
         if (mSerialPort != null)
             mSerialPort.close();
     }
@@ -111,11 +139,6 @@ public class SerialConnectJNI extends SerialConnect {
 
                     checkData(curReadData);
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
-                close();
-                if (connectListener != null)
-                    connectListener.onErrorConnect(connectNum);
             } catch (Exception e) {
                 e.printStackTrace();
             }
