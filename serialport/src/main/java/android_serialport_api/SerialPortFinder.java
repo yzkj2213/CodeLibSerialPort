@@ -24,11 +24,13 @@ public class SerialPortFinder {
 				mDevices = new Vector<File>();
 				File dev = new File("/dev");
 				File[] files = dev.listFiles();
-				int i;
-				for (i=0; i<files.length; i++) {
-					if (files[i].getAbsolutePath().startsWith(mDeviceRoot)) {
-						Log.d(TAG, "Found new device: " + files[i]);
-						mDevices.add(files[i]);
+				if (files != null){
+					int i;
+					for (i=0; i<files.length; i++) {
+						if (files[i].getAbsolutePath().startsWith(mDeviceRoot)) {
+							Log.d(TAG, "Found new device: " + files[i]);
+							mDevices.add(files[i]);
+						}
 					}
 				}
 			}
