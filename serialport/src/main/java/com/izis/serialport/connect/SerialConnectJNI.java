@@ -112,19 +112,19 @@ public class SerialConnectJNI extends SerialConnect {
     }
 
     @Override
-    public boolean writeAndFlushNoDelay(String data) {
-        if (TextUtils.isEmpty(data)) {
-            Log.w("写入指令失败：" + data);
+    boolean writeAndFlushNoDelay(String commend) {
+        if (TextUtils.isEmpty(commend)) {
+            Log.w("写入指令失败：" + commend);
             return false;
         }
         try {
-            mOutputStream.write(data.getBytes());
+            mOutputStream.write(commend.getBytes());
             mOutputStream.flush();
-            Log.i("写入指令：" + data);
+            Log.i("写入指令：" + commend);
             return true;
         } catch (Exception e) {
             e.printStackTrace();
-            Log.w("写入指令失败：" + data);
+            Log.w("写入指令失败：" + commend);
             return false;
         }
     }

@@ -136,21 +136,21 @@ public class SerialConnectPl2303 extends SerialConnect {
     }
 
     @Override
-    public boolean writeAndFlushNoDelay(String data) {
-        if (!pl2303LinkExist() || TextUtils.isEmpty(data)) {
-            Log.w("写入指令失败：" + data);
+    boolean writeAndFlushNoDelay(String commend) {
+        if (!pl2303LinkExist() || TextUtils.isEmpty(commend)) {
+            Log.w("写入指令失败：" + commend);
             return false;
         }
 
         if (mSerialMulti != null) {
-            int i = mSerialMulti.PL2303Write(deviceIndex, data.getBytes());
-            Log.i("写入指令：" + data);
+            int i = mSerialMulti.PL2303Write(deviceIndex, commend.getBytes());
+            Log.i("写入指令：" + commend);
             if (i < 0) {
-                Log.w("写入指令失败：" + data);
+                Log.w("写入指令失败：" + commend);
             }
             return i > 0;
         }
-        Log.w("写入指令失败：" + data);
+        Log.w("写入指令失败：" + commend);
         return false;
     }
 

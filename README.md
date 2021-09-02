@@ -21,6 +21,7 @@
 
     //...
 
+    //sendNumMax为0时，两者等价
     //写入指令
     serialConnect.writeAndFLush();
     //已应答的方式写入指令，未收到响应最多发送3次

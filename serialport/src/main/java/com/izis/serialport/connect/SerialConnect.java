@@ -18,6 +18,7 @@ public abstract class SerialConnect {
     SerialConnectListener connectListener;
     SerialDataListener dataListener;
     int connectNum = 0;//连接次数
+    private long lastSendTime;
 
     public void setConnectListener(SerialConnectListener connectListener) {
         this.connectListener = connectListener;
@@ -40,21 +41,32 @@ public abstract class SerialConnect {
     /**
      * 延迟80ms写入数据
      *
-     * @param data 数据
+     * @param commend 数据
      * @return 写入是否成功
      */
-    public boolean writeAndFlush(String data) {
-        sleep();
-        return writeAndFlushNoDelay(data);
+    public boolean writeAndFlush(String commend) {
+        int delayTime = ProtocolUtil.delayList.contains(key(commend))
+                ? ProtocolUtil.minDelay * ProtocolUtil.delayTimes
+                : ProtocolUtil.minDelay;
+        long l = System.currentTimeMillis();
+        if (l - lastSendTime < delayTime) {
+            try {
+                Thread.sleep(l - lastSendTime);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        lastSendTime = l;
+        return writeAndFlushNoDelay(commend);
     }
 
     /**
      * 立即写入数据
      *
-     * @param data 数据
+     * @param commend 数据
      * @return 写入是否成功
      */
-    public abstract boolean writeAndFlushNoDelay(String data);
+    abstract boolean writeAndFlushNoDelay(String commend);
 
     void sleep() {
         try {
@@ -73,6 +85,13 @@ public abstract class SerialConnect {
 
     public void setSendNumMax(int sendNumMax) {
         this.sendNumMax = sendNumMax;
+    }
+
+    /**
+     * 清除缓存的指令列表
+     */
+    public synchronized void clearCommend() {
+        commendList.clear();
     }
 
     /**

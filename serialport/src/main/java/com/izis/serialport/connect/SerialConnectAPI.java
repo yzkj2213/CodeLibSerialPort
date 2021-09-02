@@ -183,17 +183,17 @@ public class SerialConnectAPI extends SerialConnect {
     }
 
     @Override
-    public boolean writeAndFlushNoDelay(String data) {
+    boolean writeAndFlushNoDelay(String commend) {
         if (usbDeviceConnection != null && usbEndpointOut != null) {
-            byte[] bytes = data.getBytes();
+            byte[] bytes = commend.getBytes();
             int i = usbDeviceConnection.bulkTransfer(usbEndpointOut, bytes, bytes.length, 80);
-            Log.i("写入指令：" + data);
+            Log.i("写入指令：" + commend);
             if (i < 0) {
-                Log.w("写入指令失败：" + data);
+                Log.w("写入指令失败：" + commend);
             }
             return i > 0;
         }
-        Log.w("写入指令失败：" + data);
+        Log.w("写入指令失败：" + commend);
         return false;
     }
 

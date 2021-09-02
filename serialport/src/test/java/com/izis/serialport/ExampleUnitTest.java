@@ -46,7 +46,11 @@ public class ExampleUnitTest {
 //        }).start();
 //        testSync.test2();
 //
-        Thread.sleep(10 * 1000);
+//        Thread.sleep(10 * 1000);
+
+        System.out.println(System.currentTimeMillis());
+        Thread.sleep(80);
+        System.out.println(System.currentTimeMillis());
     }
 }
 
