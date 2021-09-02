@@ -16,7 +16,8 @@
 
     SerialConnect serialConnect = newInstance(context);
     serialConnect.setConnectListener();
-    serialConnect.setDataListener();
+    serialConnect.setReceiveDataListener();
+    serialConnect.setSendDataListener();
     serialConnect.open();
 
     //...
