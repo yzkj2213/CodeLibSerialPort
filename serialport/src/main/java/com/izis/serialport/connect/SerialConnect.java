@@ -1,5 +1,8 @@
 package com.izis.serialport.connect;
 
+import android.os.Handler;
+import android.os.Looper;
+
 import com.izis.serialport.listener.SerialConnectListener;
 import com.izis.serialport.listener.SerialReceiveDataListener;
 import com.izis.serialport.listener.SerialSendDataListener;
@@ -128,7 +131,7 @@ public abstract class SerialConnect {
         timerSendCommend.schedule(new TimerTask() {
             @Override
             public void run() {
-                send(commend);
+                new Handler(Looper.getMainLooper()).post(() -> send(commend));
             }
         }, 200);
     }
