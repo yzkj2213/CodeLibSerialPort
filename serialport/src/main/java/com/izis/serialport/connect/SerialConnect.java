@@ -131,7 +131,7 @@ public abstract class SerialConnect {
         timerSendCommend.schedule(new TimerTask() {
             @Override
             public void run() {
-                new Handler(Looper.getMainLooper()).post(() -> send(commend));
+                send(commend);
             }
         }, 200);
     }
@@ -251,33 +251,35 @@ public abstract class SerialConnect {
         this.sendDataListener = sendDataListener;
     }
 
-    void onConnectSuccess(){
+    private final Handler main = new Handler(Looper.getMainLooper());
+
+    void onConnectSuccess() {
         if (connectListener != null)
-            connectListener.onConnectSuccess();
+            main.post(() -> connectListener.onConnectSuccess());
     }
 
-    void onConnectFail(){
+    void onConnectFail() {
         if (connectListener != null)
-            connectListener.onConnectFail(connectNum);
+            main.post(() -> connectListener.onConnectFail(connectNum));
     }
 
-    void onConnectError(){
+    void onConnectError() {
         if (connectListener != null)
-            connectListener.onConnectError(connectNum);
+            main.post(() -> connectListener.onConnectError(connectNum));
     }
 
-    void onReceiveNormalData(String data){
+    void onReceiveNormalData(String data) {
         if (receiveDataListener != null)
-            receiveDataListener.onReceiveNormalData(data);
+            main.post(() -> receiveDataListener.onReceiveNormalData(data));
     }
 
-    void onReceiveErrorData(String data){
+    void onReceiveErrorData(String data) {
         if (receiveDataListener != null)
-            receiveDataListener.onReceiveErrorData(data);
+            main.post(() -> receiveDataListener.onReceiveErrorData(data));
     }
 
-    void onSendData(String data, boolean result){
+    void onSendData(String data, boolean result) {
         if (sendDataListener != null)
-            sendDataListener.onSendData(data, result);
+            main.post(() -> sendDataListener.onSendData(data, result));
     }
 }

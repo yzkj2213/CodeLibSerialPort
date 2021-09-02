@@ -94,9 +94,7 @@ public class SerialConnectPl2303 extends SerialConnect {
                         boolean res = mSerialMulti.PL2303OpenDevByUARTSetting(deviceIndex, mBaudRate, mDataBits, mStopBits, mParity, mFlowControl);
                         if (!res) {
                             Log.e("打开连接失败");
-                            if (connectListener != null) {
-                                new Handler(Looper.getMainLooper()).post(() -> connectListener.onConnectFail(connectNum));
-                            }
+                            onConnectFail();
                         } else {
                             Log.i("打开" + mSerialMulti.PL2303getDevicePathByIndex(deviceIndex) + "成功!");
 
@@ -105,9 +103,7 @@ public class SerialConnectPl2303 extends SerialConnect {
                             mPlMultiLibReceiver = new PLMultiLibReceiver(mSerialMulti, connectListener, deviceIndex, SerialConnectPl2303.this);
                             mContext.registerReceiver(mPlMultiLibReceiver, filter);
 
-                            if (connectListener != null) {
-                                new Handler(Looper.getMainLooper()).post(connectListener::onConnectSuccess);
-                            }
+                            onConnectSuccess();
 
                             isOpen = true;
                             connectNum = 0;
