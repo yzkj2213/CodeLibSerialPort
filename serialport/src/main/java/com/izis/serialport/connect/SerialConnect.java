@@ -73,6 +73,7 @@ public abstract class SerialConnect {
 
     /**
      * 以应答的方式发送指令
+     *
      * @param commend 指令
      */
     public synchronized void addCommend(String commend) {
@@ -127,7 +128,11 @@ public abstract class SerialConnect {
     }
 
     private String key(String commend) {
-        return commend.substring(0, 4);
+        if (commend.length() >= 4) {
+            return commend.substring(0, 4);
+        } else {
+            return "";
+        }
     }
 
     private boolean hasResponse(String commend) {
@@ -180,7 +185,6 @@ public abstract class SerialConnect {
         Matcher m = r.matcher(totalCommands);
         while (m.find()) {
             String group = m.group();
-
 
 
             Pattern pattern = Pattern.compile("[^A-Za-z0-9~#]");
