@@ -67,9 +67,13 @@ public abstract class SerialConnect {
     //------------------指令的重发
     private final LinkedList<String> commendList = new LinkedList<>();
     private String currCommend = "";
-    private final Timer timerSendCommend = new Timer();
-    private final int sendNumMax = 3;//最大重发次数
+    private Timer timerSendCommend;
+    private int sendNumMax = 3;//最大重发次数
     private int sendNum = 0;
+
+    public void setSendNumMax(int sendNumMax) {
+        this.sendNumMax = sendNumMax;
+    }
 
     /**
      * 以应答的方式发送指令
@@ -94,16 +98,19 @@ public abstract class SerialConnect {
     private void send(String commend) {
         if (commend == null || commend.isEmpty()) return;
 
+        if (sendNum > sendNumMax) {
+            loopNext();
+            return;
+        }
         sendNum++;
         writeAndFlush(commend);
         if (!hasResponse(commend)) {
             loopNext();
             return;
         }
-        if (sendNum > sendNumMax) {
-            loopNext();
-            return;
-        }
+
+        if (timerSendCommend != null) timerSendCommend.cancel();
+        timerSendCommend = new Timer();
         timerSendCommend.schedule(new TimerTask() {
             @Override
             public void run() {
@@ -118,6 +125,7 @@ public abstract class SerialConnect {
     }
 
     private synchronized void loopNext() {
+        if (timerSendCommend != null) timerSendCommend.cancel();
         if (currCommend == null || currCommend.isEmpty()) return;
         clearCurrCommend();
         if (!commendList.isEmpty()) {

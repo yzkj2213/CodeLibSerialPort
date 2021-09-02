@@ -23,17 +23,19 @@ public class ExampleUnitTest {
     @Test
     public void testSync() throws InterruptedException {
 
-        String data = "1HAA0023#~HOTA001B~HOT002#";
-        String p = "~?[A-Z]{3}[^~#]*#";
-        Pattern r = Pattern.compile(p);
-        Matcher m = r.matcher(data);
-        while (m.find()) {
-            System.out.println(m.group());
-        }
+//        String data = "1HAA0023#~HOTA001B~HOT002#";
+//        String p = "~?[A-Z]{3}[^~#]*#";
+//        Pattern r = Pattern.compile(p);
+//        Matcher m = r.matcher(data);
+//        while (m.find()) {
+//            System.out.println(m.group());
+//        }
+//
+//        Pattern pattern = Pattern.compile("[^A-Za-z0-9~#]");
+//        Matcher matcher = pattern.matcher(data);
+//        System.out.println(matcher.find());
 
-        Pattern pattern = Pattern.compile("[^A-Za-z0-9~#]");
-        Matcher matcher = pattern.matcher(data);
-        System.out.println(matcher.find());
+
 
 //        TestSync testSync = new TestSync();
 //        new Thread(new Runnable() {
@@ -44,7 +46,7 @@ public class ExampleUnitTest {
 //        }).start();
 //        testSync.test2();
 //
-//        Thread.sleep(10 * 1000);
+        Thread.sleep(10 * 1000);
     }
 }
 
@@ -66,7 +68,7 @@ class TestSync {
         System.out.println("test2===>end");
     }
 
-    public  void test3(){
+    public void test3() {
         System.out.println("test3===>start");
         test1();
         new Timer().schedule(new TimerTask() {
@@ -74,7 +76,7 @@ class TestSync {
             public void run() {
                 System.out.println("test3===>");
             }
-        },3000);
+        }, 3000);
         System.out.println("test3===>end");
     }
 }
