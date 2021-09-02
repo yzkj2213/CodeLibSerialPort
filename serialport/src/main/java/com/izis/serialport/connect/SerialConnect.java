@@ -170,7 +170,7 @@ public abstract class SerialConnect {
             return; // 继续下一次循环
         }
 
-        Log.d("所有正常指令，可能包含多个:" + totalCommands);
+        Log.d("所有指令，可能包含多个:" + totalCommands);
 
         // ==================包含#号
         // 解析数据，分解成一条条指令后交给前台调用者处理===================
@@ -180,15 +180,17 @@ public abstract class SerialConnect {
         Matcher m = r.matcher(totalCommands);
         while (m.find()) {
             String group = m.group();
-            Log.i("得到一条完整的指令:" + group);
+
 
 
             Pattern pattern = Pattern.compile("[^A-Za-z0-9~#]");
             Matcher matcher = pattern.matcher(group);
             if (matcher.find()) {
+                Log.w("得到一条异常指令:" + group);
                 if (dataListener != null)
                     dataListener.onErrorData(group);
             } else {
+                Log.i("得到一条正常指令:" + group);
                 if (dataListener != null)
                     dataListener.onNormalData(group);
             }
@@ -202,6 +204,7 @@ public abstract class SerialConnect {
         }
 
         if (totalCommands.length() != 0) {
+            Log.w("得到一条异常指令:" + totalCommands);
             if (dataListener != null)
                 dataListener.onErrorData(totalCommands);
         }
