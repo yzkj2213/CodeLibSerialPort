@@ -7,10 +7,26 @@
 # 推荐的使用方式：
 ```java
     public static SerialConnect newInstance(Context context){
-        if (Build.VERSION.RELEASE.equals("8.2.0"))
-            return new SerialConnectAPI(context);
-        else
-            return new SerialConnectPl2303(context);
+        //return new SerialConnectPl2303(context);
+        //return new SerialConnectJNI(context);
+        return new SerialConnectAPI(context);
     }
 
+    //...
+
+    SerialConnect serialConnect = newInstance(context);
+    serialConnect.setConnectListener();
+    serialConnect.setDataListener();
+    serialConnect.open();
+
+    //...
+
+    //写入指令
+    serialConnect.writeAndFLush();
+    //已应答的方式写入指令，未收到响应最多发送3次
+    serialConnect.addCommend();
+
+    //...
+
+    serialConnect.close();
 ```

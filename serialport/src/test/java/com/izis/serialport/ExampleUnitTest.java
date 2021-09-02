@@ -1,9 +1,16 @@
 package com.izis.serialport;
 
+import com.izis.serialport.util.Log;
+
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.junit.Assert.*;
 
@@ -14,10 +21,60 @@ import static org.junit.Assert.*;
  */
 public class ExampleUnitTest {
     @Test
-    public void addition_isCorrect() {
-        assertEquals(4, 2 + 2);
+    public void testSync() throws InterruptedException {
 
-        List<Object> objects = Arrays.asList(null);
-        System.out.println(objects);
+        String data = "1HAA0023#~HOTA001B~HOT002#";
+        String p = "~?[A-Z]{3}[^~#]*#";
+        Pattern r = Pattern.compile(p);
+        Matcher m = r.matcher(data);
+        while (m.find()) {
+            System.out.println(m.group());
+        }
+
+        Pattern pattern = Pattern.compile("[^A-Za-z0-9~#]");
+        Matcher matcher = pattern.matcher(data);
+        System.out.println(matcher.find());
+
+//        TestSync testSync = new TestSync();
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                testSync.test3();
+//            }
+//        }).start();
+//        testSync.test2();
+//
+//        Thread.sleep(10 * 1000);
+    }
+}
+
+class TestSync {
+    private final LinkedList<String> list = new LinkedList<>();
+
+    public synchronized void test1() {
+        System.out.println("test1===>start");
+        list.add("1");
+        System.out.println("test1===>end");
+    }
+
+    public synchronized void test2() throws InterruptedException {
+        System.out.println("test2===>start");
+        if (!list.isEmpty())
+            list.removeFirst();
+
+        Thread.sleep(3000);
+        System.out.println("test2===>end");
+    }
+
+    public  void test3(){
+        System.out.println("test3===>start");
+        test1();
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                System.out.println("test3===>");
+            }
+        },3000);
+        System.out.println("test3===>end");
     }
 }
