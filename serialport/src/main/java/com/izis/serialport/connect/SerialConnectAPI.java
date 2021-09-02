@@ -37,8 +37,7 @@ public class SerialConnectAPI extends SerialConnect {
                 if (device != null) {
                     Log.e(device.getDeviceName() + "断开");
                     close();
-                    if (connectListener != null)
-                        connectListener.onErrorConnect(connectNum);
+                    onConnectError();
                 }
             }
         }
@@ -81,11 +80,9 @@ public class SerialConnectAPI extends SerialConnect {
         connectNum++;
         manager = (UsbManager) context.getSystemService(Context.USB_SERVICE);
         HashMap<String, UsbDevice> deviceList = manager.getDeviceList();
-        Log.d("deviceList：" + deviceList.size());
         for (UsbDevice next : deviceList.values()) {
             if (next != null) {
                 Log.d(next.toString());
-                Log.d("---------------------");
                 if (next.getVendorId() == 1659 && next.getProductId() == 8963) {
                     device = next;
                     break;
@@ -122,8 +119,7 @@ public class SerialConnectAPI extends SerialConnect {
             context.registerReceiver(usbPermissionReceiver, intentFilter);
             manager.requestPermission(device, pendingIntent);
         } else {
-            if (connectListener != null)
-                connectListener.onConnectFail(connectNum);
+            onConnectFail();
         }
     }
 
@@ -151,16 +147,13 @@ public class SerialConnectAPI extends SerialConnect {
                 Log.i("打开" + device.getDeviceName() + "成功");
                 IntentFilter filter = new IntentFilter(UsbManager.ACTION_USB_DEVICE_DETACHED);
                 if (context != null) context.registerReceiver(usbReceiver, filter);
-                if (connectListener != null)
-                    connectListener.onConnectSuccess();
+                onConnectSuccess();
             } catch (Exception e) {
                 e.printStackTrace();
-                if (connectListener != null)
-                    connectListener.onConnectFail(connectNum);
+                onConnectFail();
             }
         } else {
-            if (connectListener != null)
-                connectListener.onConnectFail(connectNum);
+            onConnectFail();
         }
     }
 
@@ -187,13 +180,17 @@ public class SerialConnectAPI extends SerialConnect {
         if (usbDeviceConnection != null && usbEndpointOut != null) {
             byte[] bytes = commend.getBytes();
             int i = usbDeviceConnection.bulkTransfer(usbEndpointOut, bytes, bytes.length, 80);
-            Log.i("写入指令：" + commend);
             if (i < 0) {
                 Log.w("写入指令失败：" + commend);
+                onSendData(commend, false);
+            } else {
+                Log.i("写入指令：" + commend);
+                onSendData(commend, true);
             }
             return i > 0;
         }
         Log.w("写入指令失败：" + commend);
+        onSendData(commend, false);
         return false;
     }
 

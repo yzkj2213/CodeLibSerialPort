@@ -19,5 +19,5 @@ public interface SerialConnectListener {
      *
      * 有可能会触发多次
      */
-    void onErrorConnect(int connectNum);
+    void onConnectError(int connectNum);
 }

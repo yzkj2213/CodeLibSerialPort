@@ -1,7 +1,8 @@
 package com.izis.serialport.connect;
 
 import com.izis.serialport.listener.SerialConnectListener;
-import com.izis.serialport.listener.SerialDataListener;
+import com.izis.serialport.listener.SerialReceiveDataListener;
+import com.izis.serialport.listener.SerialSendDataListener;
 import com.izis.serialport.util.Log;
 import com.izis.serialport.util.ProtocolUtil;
 
@@ -16,17 +17,10 @@ import java.util.regex.Pattern;
  */
 public abstract class SerialConnect {
     SerialConnectListener connectListener;
-    SerialDataListener dataListener;
+    SerialReceiveDataListener receiveDataListener;
+    SerialSendDataListener sendDataListener;
     int connectNum = 0;//连接次数
     private long lastSendTime;
-
-    public void setConnectListener(SerialConnectListener connectListener) {
-        this.connectListener = connectListener;
-    }
-
-    public void setDataListener(SerialDataListener dataListener) {
-        this.dataListener = dataListener;
-    }
 
     /**
      * 打开连接
@@ -121,8 +115,9 @@ public abstract class SerialConnect {
             loopNext();
             return;
         }
-        sendNum++;
-        writeAndFlush(commend);
+        boolean result = writeAndFlush(commend);
+        if (result)
+            sendNum++;//写入成功才累加发送次数，如果棋盘断开，则一直尝试，直到棋盘连上或者清除缓存指令
         if (!hasResponse(commend)) {
             loopNext();
             return;
@@ -218,12 +213,10 @@ public abstract class SerialConnect {
             Matcher matcher = pattern.matcher(group);
             if (matcher.find()) {
                 Log.w("得到一条异常指令:" + group);
-                if (dataListener != null)
-                    dataListener.onErrorData(group);
+                onReceiveErrorData(group);
             } else {
                 Log.i("得到一条正常指令:" + group);
-                if (dataListener != null)
-                    dataListener.onNormalData(group);
+                onReceiveNormalData(group);
             }
 
 
@@ -236,10 +229,52 @@ public abstract class SerialConnect {
 
         if (totalCommands.length() != 0) {
             Log.w("得到一条异常指令:" + totalCommands);
-            if (dataListener != null)
-                dataListener.onErrorData(totalCommands);
+            onReceiveErrorData(totalCommands);
         }
 
         readTemp = tempRest;
+    }
+
+    //-----------------------setter,getter--------------------
+    public void setConnectListener(SerialConnectListener connectListener) {
+        this.connectListener = connectListener;
+    }
+
+    public void setReceiveDataListener(SerialReceiveDataListener receiveDataListener) {
+        this.receiveDataListener = receiveDataListener;
+    }
+
+    public void setSendDataListener(SerialSendDataListener sendDataListener) {
+        this.sendDataListener = sendDataListener;
+    }
+
+    void onConnectSuccess(){
+        if (connectListener != null)
+            connectListener.onConnectSuccess();
+    }
+
+    void onConnectFail(){
+        if (connectListener != null)
+            connectListener.onConnectFail(connectNum);
+    }
+
+    void onConnectError(){
+        if (connectListener != null)
+            connectListener.onConnectError(connectNum);
+    }
+
+    void onReceiveNormalData(String data){
+        if (receiveDataListener != null)
+            receiveDataListener.onReceiveNormalData(data);
+    }
+
+    void onReceiveErrorData(String data){
+        if (receiveDataListener != null)
+            receiveDataListener.onReceiveErrorData(data);
+    }
+
+    void onSendData(String data, boolean result){
+        if (sendDataListener != null)
+            sendDataListener.onSendData(data, result);
     }
 }

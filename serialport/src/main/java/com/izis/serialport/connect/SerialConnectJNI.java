@@ -30,8 +30,7 @@ public class SerialConnectJNI extends SerialConnect {
                 if (device != null) {
                     Log.e(device.getDeviceName() + "断开");
                     close();
-                    if (connectListener != null)
-                        connectListener.onErrorConnect(connectNum);
+                    onConnectError();
                 }
             }
         }
@@ -48,8 +47,7 @@ public class SerialConnectJNI extends SerialConnect {
         String[] entryValues = mSerialPortFinder.getAllDevicesPath();
         if (entryValues == null) {
             Log.w("没有找到相关设备");
-            if (connectListener != null)
-                connectListener.onConnectFail(connectNum);
+            onConnectFail();
             return;
         }
         Log.i("查找到设备：" + Arrays.toString(entryValues));
@@ -63,8 +61,7 @@ public class SerialConnectJNI extends SerialConnect {
         }
         if (device.isEmpty()) {
             Log.w("没有找到相关设备");
-            if (connectListener != null)
-                connectListener.onConnectFail(connectNum);
+            onConnectFail();
             return;
         }
 
@@ -86,13 +83,11 @@ public class SerialConnectJNI extends SerialConnect {
             IntentFilter filter = new IntentFilter(UsbManager.ACTION_USB_DEVICE_DETACHED);
             if (context != null) context.registerReceiver(usbReceiver, filter);
 
-            if (connectListener != null)
-                connectListener.onConnectSuccess();
+            onConnectSuccess();
             Log.i("连接设备成功");
         } catch (Exception e) {
             Log.e("打开串口失败");
-            if (connectListener != null)
-                connectListener.onConnectFail(connectNum);
+            onConnectFail();
         }
     }
 
@@ -115,16 +110,19 @@ public class SerialConnectJNI extends SerialConnect {
     boolean writeAndFlushNoDelay(String commend) {
         if (TextUtils.isEmpty(commend)) {
             Log.w("写入指令失败：" + commend);
+            onSendData(commend, false);
             return false;
         }
         try {
             mOutputStream.write(commend.getBytes());
             mOutputStream.flush();
             Log.i("写入指令：" + commend);
+            onSendData(commend, true);
             return true;
         } catch (Exception e) {
             e.printStackTrace();
             Log.w("写入指令失败：" + commend);
+            onSendData(commend, false);
             return false;
         }
     }

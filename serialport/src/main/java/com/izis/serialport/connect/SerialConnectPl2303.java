@@ -57,7 +57,8 @@ public class SerialConnectPl2303 extends SerialConnect {
                     try {
                         int index = Integer.parseInt(str);
                         if (deviceIndex == index) {
-                            mConnectListener.onErrorConnect(serialConnect.connectNum);
+                            if (mConnectListener != null)
+                                mConnectListener.onConnectError(serialConnect.connectNum);
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -139,18 +140,23 @@ public class SerialConnectPl2303 extends SerialConnect {
     boolean writeAndFlushNoDelay(String commend) {
         if (!pl2303LinkExist() || TextUtils.isEmpty(commend)) {
             Log.w("写入指令失败：" + commend);
+            onSendData(commend, false);
             return false;
         }
 
         if (mSerialMulti != null) {
             int i = mSerialMulti.PL2303Write(deviceIndex, commend.getBytes());
-            Log.i("写入指令：" + commend);
             if (i < 0) {
                 Log.w("写入指令失败：" + commend);
+                onSendData(commend, false);
+            }else{
+                Log.i("写入指令：" + commend);
+                onSendData(commend, true);
             }
             return i > 0;
         }
         Log.w("写入指令失败：" + commend);
+        onSendData(commend, false);
         return false;
     }
 
