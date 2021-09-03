@@ -23,7 +23,8 @@ public abstract class SerialConnect {
     SerialReceiveDataListener receiveDataListener;
     SerialSendDataListener sendDataListener;
     int connectNum = 0;//连接次数
-    private long lastSendTime;
+    private String lastCommend = "";
+    private long lastSendTime = 0;
 
     /**
      * 打开连接
@@ -42,18 +43,19 @@ public abstract class SerialConnect {
      * @return 写入是否成功
      */
     public boolean writeAndFlush(String commend) {
-        int delayTime = ProtocolUtil.delayList.contains(key(commend))
+        int delayTime = ProtocolUtil.delayList.contains(key(lastCommend))
                 ? ProtocolUtil.minDelay * ProtocolUtil.delayTimes
                 : ProtocolUtil.minDelay;
         long l = System.currentTimeMillis();
         if (l - lastSendTime < delayTime) {
             try {
-                Thread.sleep(l - lastSendTime);
+                Thread.sleep(delayTime - (l - lastSendTime));
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
-        lastSendTime = l;
+        lastSendTime = System.currentTimeMillis();
+        lastCommend = commend;
         return writeAndFlushNoDelay(commend);
     }
 
