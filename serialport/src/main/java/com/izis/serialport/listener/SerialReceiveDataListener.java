@@ -5,7 +5,7 @@ package com.izis.serialport.listener;
  */
 public interface SerialReceiveDataListener {
     /**
-     * 接收到串口传输的数据
+     * 接收到串口传输的正常数据
      * @param data 数据，已做处理，符合 ~?[A-Z]{3}[^~#]*# 格式
      */
     void onReceiveNormalData(String data);

@@ -12,6 +12,9 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import android_serialport_api.SerialPort;
 import android_serialport_api.SerialPortFinder;
 
@@ -21,6 +24,7 @@ public class SerialConnectJNI extends SerialConnect {
     private SerialPort mSerialPort = null;
     private OutputStream mOutputStream = null;
     private InputStream mInputStream = null;
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private final BroadcastReceiver usbReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
@@ -103,7 +107,7 @@ public class SerialConnectJNI extends SerialConnect {
         }
 
         if (mSerialPort != null)
-            mSerialPort.close();
+            executorService.execute(() -> mSerialPort.close());
     }
 
     @Override
