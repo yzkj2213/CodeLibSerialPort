@@ -49,6 +49,7 @@
     //关闭连接
     serialConnect.close();
 ```
+注意重连时最好延迟1s。
 # 连接监听
 ```java
 public interface SerialConnectListener {
