@@ -6,11 +6,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.hardware.usb.UsbManager;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.text.TextUtils;
 
-import com.izis.serialport.listener.SerialConnectListener;
 import com.izis.serialport.util.Log;
 
 import java.util.Timer;
@@ -29,7 +26,7 @@ public class SerialConnectPl2303 extends SerialConnect {
     private final PL2303MultiLib.StopBits mStopBits = PL2303MultiLib.StopBits.S1;
     private final PL2303MultiLib.FlowControl mFlowControl = PL2303MultiLib.FlowControl.XONXOFF;  // 是否有效？
     private PL2303MultiLib mSerialMulti;
-    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private ExecutorService executorService;
     private final Context mContext;
     private PLMultiLibReceiver mPlMultiLibReceiver;
     private boolean isOpen = false;
@@ -37,13 +34,11 @@ public class SerialConnectPl2303 extends SerialConnect {
 
     static class PLMultiLibReceiver extends BroadcastReceiver {
         private final PL2303MultiLib mSerialMulti;
-        private final SerialConnectListener mConnectListener;
         private final int deviceIndex;
         private final SerialConnect serialConnect;
 
-        public PLMultiLibReceiver(PL2303MultiLib mSerialMulti, SerialConnectListener mConnectListener, int deviceIndex, SerialConnect serialConnect) {
+        public PLMultiLibReceiver(PL2303MultiLib mSerialMulti, int deviceIndex, SerialConnect serialConnect) {
             this.mSerialMulti = mSerialMulti;
-            this.mConnectListener = mConnectListener;
             this.deviceIndex = deviceIndex;
             this.serialConnect = serialConnect;
         }
@@ -57,13 +52,13 @@ public class SerialConnectPl2303 extends SerialConnect {
                     try {
                         int index = Integer.parseInt(str);
                         if (deviceIndex == index) {
-                            if (mConnectListener != null)
-                                mConnectListener.onConnectError(serialConnect.connectNum);
+                            Log.e("index" + str + "断开");
+                            serialConnect.close();
+                            serialConnect.onConnectError();
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-
                 }
             }
         }
@@ -100,7 +95,7 @@ public class SerialConnectPl2303 extends SerialConnect {
 
                             IntentFilter filter = new IntentFilter();
                             filter.addAction(mSerialMulti.PLUART_MESSAGE);
-                            mPlMultiLibReceiver = new PLMultiLibReceiver(mSerialMulti, connectListener, deviceIndex, SerialConnectPl2303.this);
+                            mPlMultiLibReceiver = new PLMultiLibReceiver(mSerialMulti, deviceIndex, SerialConnectPl2303.this);
                             mContext.registerReceiver(mPlMultiLibReceiver, filter);
 
                             onConnectSuccess();
@@ -129,7 +124,8 @@ public class SerialConnectPl2303 extends SerialConnect {
             mSerialMulti.PL2303Release();
             mSerialMulti = null;
         }
-        executorService.shutdown();
+        if (executorService != null)
+            executorService.shutdown();
     }
 
     @Override
@@ -145,7 +141,7 @@ public class SerialConnectPl2303 extends SerialConnect {
             if (i < 0) {
                 Log.w("写入指令失败：" + commend);
                 onSendData(commend, false);
-            }else{
+            } else {
                 Log.i("写入指令：" + commend);
                 onSendData(commend, true);
             }
@@ -157,6 +153,7 @@ public class SerialConnectPl2303 extends SerialConnect {
     }
 
     private void requestData() {
+        executorService = Executors.newSingleThreadExecutor();
         executorService.submit(new Runnable() {
             private final byte[] readByte = new byte[512]; // 4096
 

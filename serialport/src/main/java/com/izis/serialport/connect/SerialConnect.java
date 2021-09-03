@@ -77,7 +77,6 @@ public abstract class SerialConnect {
 
     //------------------指令的重发
     private final LinkedList<String> commendList = new LinkedList<>();
-    private String currCommend = "";
     private Timer timerSendCommend;
     private int sendNumMax = 3;//最大重发次数
     private int sendNum = 0;
@@ -101,19 +100,19 @@ public abstract class SerialConnect {
     public synchronized void addCommend(String commend) {
         commendList.add(commend);
         if (commendList.size() == 1) {
-            currCommend = nextCommend();
-            send(currCommend);
+            send();
         }
     }
 
-    private String nextCommend() {
+    private String getCommend() {
         if (!commendList.isEmpty()) {
             return commendList.getFirst();
         }
         return "";
     }
 
-    private void send(String commend) {
+    private void send() {
+        String commend = getCommend();
         if (commend == null || commend.isEmpty()) return;
 
         if (sendNum > sendNumMax) {
@@ -133,24 +132,19 @@ public abstract class SerialConnect {
         timerSendCommend.schedule(new TimerTask() {
             @Override
             public void run() {
-                send(commend);
+                send();
             }
         }, 200);
     }
 
-    private void clearCurrCommend() {
-        currCommend = "";
-        sendNum = 0;
-    }
-
     private synchronized void loopNext() {
         if (timerSendCommend != null) timerSendCommend.cancel();
-        if (currCommend == null || currCommend.isEmpty()) return;
-        clearCurrCommend();
+
+        sendNum = 0;
+
         if (!commendList.isEmpty()) {
             commendList.removeFirst();
-            currCommend = nextCommend();
-            send(currCommend);
+            send();
         }
     }
 
@@ -178,12 +172,6 @@ public abstract class SerialConnect {
         Log.d("本次读取数据:" + curReadData);
 
         readTemp = String.format("%s%s", readTemp, curReadData); // 得到最完整的读取池数据
-
-//        int firstStartCharIndex = readTemp.indexOf("~");
-//
-//        if (firstStartCharIndex > 0) {// 总池子不是以“~”开头，有故障。将开头数据摒弃。（-1，0，>0）
-//            readTemp = readTemp.substring(firstStartCharIndex);
-//        }
 
         Log.d("初步处理数据:" + readTemp);
 
@@ -227,7 +215,7 @@ public abstract class SerialConnect {
 
             totalCommands = totalCommands.replace(group, "");
 
-            if (isResponse(currCommend, group)) {
+            if (isResponse(lastCommend, group)) {
                 loopNext();
             }
         }
