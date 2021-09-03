@@ -98,3 +98,15 @@ public interface SerialSendDataListener {
     void onSendData(String data, boolean result);
 }
 ```
+# 自定义有响应和需要延迟的指令
+```java
+    //添加有响应的指令
+    ProtocolUtil.responseMap.put();
+
+    //添加发完需要延迟再发下一条的指令
+    ProtocolUtil.delayList.add();
+    //指令延迟的倍率
+    public static int delayTimes = 3;
+    //每条指令的最小基础间隔
+    public static int minDelay = 80;
+```
