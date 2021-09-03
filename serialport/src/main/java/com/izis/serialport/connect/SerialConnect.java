@@ -42,7 +42,7 @@ public abstract class SerialConnect {
      * @param commend 数据
      * @return 写入是否成功
      */
-    public boolean writeAndFlush(String commend) {
+    public synchronized boolean writeAndFlush(String commend) {
         int delayTime = ProtocolUtil.delayList.contains(key(lastCommend))
                 ? ProtocolUtil.minDelay * ProtocolUtil.delayTimes
                 : ProtocolUtil.minDelay;
