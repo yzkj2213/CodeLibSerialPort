@@ -8,12 +8,29 @@ import com.izis.serialport.listener.SerialReceiveDataListener;
 import com.izis.serialport.listener.SerialSendDataListener;
 import com.izis.serialport.util.Log;
 import com.izis.serialport.util.ProtocolUtil;
-
 import java.util.LinkedList;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+/**
+ * 连接状态
+ */
+enum ConnectState {
+    /**
+     * 未连接
+     */
+    DisConnect,
+    /**
+     * 正在连接
+     */
+    ConnectIng,
+    /**
+     * 已连接
+     */
+    Connected,
+}
 
 /**
  * 串口连接
@@ -22,19 +39,45 @@ public abstract class SerialConnect {
     SerialConnectListener connectListener;
     SerialReceiveDataListener receiveDataListener;
     SerialSendDataListener sendDataListener;
-    int connectNum = 0;//连接次数
-    private String lastCommend = "";
-    private long lastSendTime = 0;
+    private ConnectState connectState = ConnectState.DisConnect;//连接状态
+    private int connectNum = 0;//连接次数
+    private int connectNumMax = 3;//最大重连次数
+    private String lastCommend = "";//最后一条指令
+    private long lastSendTime = 0;//最后一条指令的发送时间
+
+    public void setConnectNumMax(int connectNumMax) {
+        this.connectNumMax = connectNumMax;
+    }
 
     /**
      * 打开连接
      */
-    public abstract void open();
+    public synchronized void open() {
+        if (connectState == ConnectState.ConnectIng) return;
+        connectState = ConnectState.ConnectIng;
+        connectNum++;
+
+        openConnect();
+    }
 
     /**
      * 关闭连接
      */
-    public abstract void close();
+    public void close() {
+        connectState = ConnectState.DisConnect;
+
+        disConnect();
+    }
+
+    //打开连接
+    abstract void openConnect();
+
+    //断开连接
+    abstract void disConnect();
+
+    public boolean isConnected() {
+        return connectState == ConnectState.Connected;
+    }
 
     /**
      * 延迟80ms写入数据
@@ -244,18 +287,42 @@ public abstract class SerialConnect {
     private final Handler main = new Handler(Looper.getMainLooper());
 
     void onConnectSuccess() {
+        connectState = ConnectState.Connected;
+        connectNum = 0;
         if (connectListener != null)
             main.post(() -> connectListener.onConnectSuccess());
     }
 
     void onConnectFail() {
-        if (connectListener != null)
-            main.post(() -> connectListener.onConnectFail(connectNum));
+        connectState = ConnectState.DisConnect;
+        if (connectNum <= connectNumMax) {
+            //默认重连 connectNumMax 次
+            new Timer().schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    open();
+                }
+            }, 1200);
+        } else {
+            //重连失败后回调通知
+            if (connectListener != null)
+                main.post(() -> connectListener.onConnectFail(connectNum));
+        }
+
     }
 
     void onConnectError() {
+        connectState = ConnectState.DisConnect;
+        //异常中断直接重连
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                open();
+            }
+        }, 1200);
+
         if (connectListener != null)
-            main.post(() -> connectListener.onConnectError(connectNum));
+            main.post(() -> connectListener.onConnectError());
     }
 
     void onReceiveNormalData(String data) {

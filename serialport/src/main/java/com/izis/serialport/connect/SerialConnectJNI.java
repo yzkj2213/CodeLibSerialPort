@@ -19,7 +19,6 @@ import android_serialport_api.SerialPort;
 import android_serialport_api.SerialPortFinder;
 
 public class SerialConnectJNI extends SerialConnect {
-    private boolean isOpen = false;
     private final Context context;
     private SerialPort mSerialPort = null;
     private OutputStream mOutputStream = null;
@@ -44,9 +43,7 @@ public class SerialConnectJNI extends SerialConnect {
     }
 
     @Override
-    public void open() {
-        if (isOpen) return;
-        connectNum++;
+    void openConnect() {
         SerialPortFinder mSerialPortFinder = new SerialPortFinder();
         String[] entryValues = mSerialPortFinder.getAllDevicesPath();
         if (entryValues == null) {
@@ -75,20 +72,18 @@ public class SerialConnectJNI extends SerialConnect {
             mInputStream = mSerialPort.getInputStream();
             mOutputStream = mSerialPort.getOutputStream();
 
+            IntentFilter filter = new IntentFilter(UsbManager.ACTION_USB_DEVICE_DETACHED);
+            if (context != null) context.registerReceiver(usbReceiver, filter);
+
+            onConnectSuccess();
+            Log.i("连接设备成功");
+
             new Thread() {
                 @Override
                 public void run() {
                     requestData();
                 }
             }.start();
-
-            connectNum = 0;
-            isOpen = true;
-            IntentFilter filter = new IntentFilter(UsbManager.ACTION_USB_DEVICE_DETACHED);
-            if (context != null) context.registerReceiver(usbReceiver, filter);
-
-            onConnectSuccess();
-            Log.i("连接设备成功");
         } catch (Exception e) {
             Log.e("打开串口失败");
             onConnectFail();
@@ -96,8 +91,7 @@ public class SerialConnectJNI extends SerialConnect {
     }
 
     @Override
-    public void close() {
-        isOpen = false;
+    void disConnect() {
         try {
             if (context != null) {
                 context.unregisterReceiver(usbReceiver);
@@ -132,7 +126,7 @@ public class SerialConnectJNI extends SerialConnect {
     }
 
     private void requestData() {
-        while (isOpen) {
+        while (isConnected()) {
             try {
                 sleep();
 

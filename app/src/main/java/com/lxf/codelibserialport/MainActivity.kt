@@ -4,8 +4,6 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import com.izis.serialport.connect.SerialConnectAPI
-import com.izis.serialport.connect.SerialConnectJNI
-import com.izis.serialport.connect.SerialConnectPl2303
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

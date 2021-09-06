@@ -37,20 +37,17 @@ public class ExampleUnitTest {
 
 
 
-//        TestSync testSync = new TestSync();
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                testSync.test3();
-//            }
-//        }).start();
-//        testSync.test2();
-//
-//        Thread.sleep(10 * 1000);
+        TestSync testSync = new TestSync();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                testSync.test3();
+            }
+        }).start();
+        testSync.test2();
 
-        System.out.println(System.currentTimeMillis());
-        Thread.sleep(80);
-        System.out.println(System.currentTimeMillis());
+        Thread.sleep(10 * 1000);
+
     }
 }
 
@@ -68,11 +65,18 @@ class TestSync {
         if (!list.isEmpty())
             list.removeFirst();
 
-        Thread.sleep(3000);
+//        Thread.sleep(3000);
+
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                System.out.println("test2===>");
+            }
+        }, 3000);
         System.out.println("test2===>end");
     }
 
-    public void test3() {
+    public synchronized void test3() {
         System.out.println("test3===>start");
         test1();
         new Timer().schedule(new TimerTask() {

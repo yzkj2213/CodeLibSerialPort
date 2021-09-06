@@ -29,8 +29,6 @@ public class SerialConnectPl2303 extends SerialConnect {
     private ExecutorService executorService;
     private final Context mContext;
     private PLMultiLibReceiver mPlMultiLibReceiver;
-    private boolean isOpen = false;
-
 
     static class PLMultiLibReceiver extends BroadcastReceiver {
         private final PL2303MultiLib mSerialMulti;
@@ -69,9 +67,7 @@ public class SerialConnectPl2303 extends SerialConnect {
     }
 
     @Override
-    public void open() {
-        if (isOpen) return;
-        connectNum++;
+    void openConnect() {
         if (mSerialMulti == null) {
             mSerialMulti = new PL2303MultiLib((UsbManager) mContext.getSystemService(Context.USB_SERVICE), mContext, ACTION_USB_PERMISSION);
         }
@@ -79,7 +75,11 @@ public class SerialConnectPl2303 extends SerialConnect {
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
-                if (pl2303LinkExist()) return;
+                if (pl2303LinkExist()) {
+                    Log.e("打开连接失败");
+                    onConnectFail();
+                    return;
+                }
 
                 mSerialMulti.PL2303Enumerate();
 
@@ -100,8 +100,6 @@ public class SerialConnectPl2303 extends SerialConnect {
 
                             onConnectSuccess();
 
-                            isOpen = true;
-                            connectNum = 0;
                             requestData();
                         }
                     }
@@ -111,8 +109,7 @@ public class SerialConnectPl2303 extends SerialConnect {
     }
 
     @Override
-    public void close() {
-        isOpen = false;
+    void disConnect() {
         if (mSerialMulti != null) {
             try {
                 if (mPlMultiLibReceiver != null)
@@ -159,7 +156,7 @@ public class SerialConnectPl2303 extends SerialConnect {
 
             @Override
             public void run() {
-                while (isOpen) {
+                while (isConnected()) {
                     sleep();
 
                     if (mSerialMulti != null) {

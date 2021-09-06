@@ -49,7 +49,7 @@
     //关闭连接
     serialConnect.close();
 ```
-注意重连时最好延迟1s。
+断开时默认会重连3次。
 # 连接监听
 ```java
 public interface SerialConnectListener {
@@ -59,17 +59,15 @@ public interface SerialConnectListener {
     void onConnectSuccess();
 
     /**
-     * 连接失败
+     * 连接失败，如果设置了自动重连，则在自动重连次数用完后，依然没连上时触发
      * @param connectNum  连接次数
      */
     void onConnectFail(int connectNum);
 
     /**
      * 异常断开，主动断开时不会触发
-     *
-     * @param connectNum  连接次数
      */
-    void onConnectError(int connectNum);
+    default onConnectError(){}
 }
 ```
 # 接收数据监听
