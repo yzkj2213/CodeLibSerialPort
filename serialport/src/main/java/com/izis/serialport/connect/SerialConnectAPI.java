@@ -11,7 +11,9 @@ import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbEndpoint;
 import android.hardware.usb.UsbInterface;
 import android.hardware.usb.UsbManager;
+
 import com.izis.serialport.util.Log;
+
 import java.io.IOException;
 import java.util.HashMap;
 
@@ -29,13 +31,14 @@ public class SerialConnectAPI extends SerialConnect {
     private final BroadcastReceiver usbReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-
-            if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
-                UsbDevice device = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
-                if (device != null) {
-                    Log.e(device.getDeviceName() + "断开");
-                    close();
-                    onConnectError();
+            synchronized (this) {
+                if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
+                    UsbDevice device = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
+                    if (device != null) {
+                        close();
+                        Log.e(device.getDeviceName() + "断开");
+                        onConnectError();
+                    }
                 }
             }
         }
@@ -56,10 +59,10 @@ public class SerialConnectAPI extends SerialConnect {
                 if (device == null || connect.device == null) return;
                 if (connect.device.getDeviceName().equals(device.getDeviceName())) {
                     if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
-                        Log.i("授权成功");
+                        Log.i(device.getDeviceName() + "授权成功");
                         connect.connect();
                     } else {
-                        Log.w("请授权");
+                        Log.w(device.getDeviceName() + "请授权");
                         connect.onConnectFail();
                     }
                 }
@@ -76,6 +79,7 @@ public class SerialConnectAPI extends SerialConnect {
         try {
             manager = (UsbManager) context.getSystemService(Context.USB_SERVICE);
             HashMap<String, UsbDevice> deviceList = manager.getDeviceList();
+            UsbDevice device = null;
             for (UsbDevice next : deviceList.values()) {
                 if (next != null) {
                     Log.d(next.toString());
@@ -86,21 +90,25 @@ public class SerialConnectAPI extends SerialConnect {
                 }
             }
 
-            if (device != null) {
-                int interfaceCount = device.getInterfaceCount();
-                Log.d("UsbInterface数目：" + interfaceCount);
-                if (interfaceCount > 0) {
-                    usbInterface = device.getInterface(0);
-                    if (usbInterface != null) {
-                        for (int i = 0; i < usbInterface.getEndpointCount(); i++) {
-                            UsbEndpoint usbEndpoint = usbInterface.getEndpoint(i);
-                            if (usbEndpoint.getType() == UsbConstants.USB_ENDPOINT_XFER_BULK) {
-                                if (usbEndpoint.getDirection() == UsbConstants.USB_DIR_IN) {
-                                    usbEndpointIn = usbEndpoint;
-                                }
-                                if (usbEndpoint.getDirection() == UsbConstants.USB_DIR_OUT) {
-                                    usbEndpointOut = usbEndpoint;
-                                }
+            if (device == null) {
+                onConnectFail();
+                return;
+            }
+            this.device = device;
+
+            int interfaceCount = device.getInterfaceCount();
+            Log.d("UsbInterface数目：" + interfaceCount);
+            if (interfaceCount > 0) {
+                usbInterface = device.getInterface(0);
+                if (usbInterface != null) {
+                    for (int i = 0; i < usbInterface.getEndpointCount(); i++) {
+                        UsbEndpoint usbEndpoint = usbInterface.getEndpoint(i);
+                        if (usbEndpoint.getType() == UsbConstants.USB_ENDPOINT_XFER_BULK) {
+                            if (usbEndpoint.getDirection() == UsbConstants.USB_DIR_IN) {
+                                usbEndpointIn = usbEndpoint;
+                            }
+                            if (usbEndpoint.getDirection() == UsbConstants.USB_DIR_OUT) {
+                                usbEndpointOut = usbEndpoint;
                             }
                         }
                     }
@@ -113,6 +121,7 @@ public class SerialConnectAPI extends SerialConnect {
                 IntentFilter intentFilter = new IntentFilter(ACTION_DEVICE_PERMISSION);
                 usbPermissionReceiver = new UsbPermissionReceiver(this);
                 context.registerReceiver(usbPermissionReceiver, intentFilter);
+                Log.d("----------------请求授权----------------");
                 manager.requestPermission(device, pendingIntent);
             } else {
                 onConnectFail();
@@ -127,6 +136,7 @@ public class SerialConnectAPI extends SerialConnect {
         try {
             if (isConnected()) return;
             if (manager == null) return;
+            if (device == null) return;
             usbDeviceConnection = manager.openDevice(device);
             if (usbDeviceConnection != null) {
                 boolean claimInterface = usbDeviceConnection.claimInterface(usbInterface, true);
@@ -172,7 +182,7 @@ public class SerialConnectAPI extends SerialConnect {
             usbDeviceConnection.releaseInterface(usbInterface);
             usbDeviceConnection.close();
         }
-
+        device = null;
     }
 
     @Override

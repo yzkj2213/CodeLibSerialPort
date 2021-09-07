@@ -41,10 +41,10 @@ public class ExampleUnitTest {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                testSync.test3();
+                testSync.test1();
             }
         }).start();
-        testSync.test2();
+        testSync.test3();
 
         Thread.sleep(10 * 1000);
 
@@ -60,12 +60,12 @@ class TestSync {
         System.out.println("test1===>end");
     }
 
-    public synchronized void test2() throws InterruptedException {
+    public  void test2() throws InterruptedException {
         System.out.println("test2===>start");
         if (!list.isEmpty())
             list.removeFirst();
 
-//        Thread.sleep(3000);
+        Thread.sleep(3000);
 
         new Timer().schedule(new TimerTask() {
             @Override
@@ -76,9 +76,9 @@ class TestSync {
         System.out.println("test2===>end");
     }
 
-    public synchronized void test3() {
+    public synchronized void test3() throws InterruptedException {
         System.out.println("test3===>start");
-        test1();
+        test2();
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
