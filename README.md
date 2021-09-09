@@ -1,8 +1,9 @@
-> 提供三种方式连接隐智电子棋盘。
+> 提供四种方式连接隐智电子棋盘。
 
 - 使用PL2303官方提供的jar包：SerialConnectPl2303
 - 使用google开源的android-serial-port（需要root权限）：SerialConnectJNI
 - 使用android提供的API：SerialConnectAPI
+- 使用物理串口直链：SerialConnectDirect
 # 使用方式
 ```groovy
 
@@ -23,7 +24,8 @@
     public static SerialConnect newInstance(Context context){
         //return new SerialConnectPl2303(context);
         //return new SerialConnectJNI(context);
-        return new SerialConnectAPI(context);
+        //return new SerialConnectAPI(context);
+        return new SerialConnectDirect(context);
     }
 
     //...
