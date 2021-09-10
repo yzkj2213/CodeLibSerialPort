@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
-import android.text.TextUtils;
 import com.izis.serialport.util.Log;
 import java.io.File;
 import java.io.InputStream;
@@ -29,7 +28,7 @@ public class SerialConnectJNI extends SerialConnect {
             String action = intent.getAction();
 
             if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
-                UsbDevice device = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
+                UsbDevice device = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
                 if (device != null) {
                     Log.e(device.getDeviceName() + "断开");
                     close();
@@ -38,6 +37,7 @@ public class SerialConnectJNI extends SerialConnect {
             }
         }
     };
+
     public SerialConnectJNI(Context context) {
         this.context = context;
     }
@@ -105,22 +105,13 @@ public class SerialConnectJNI extends SerialConnect {
     }
 
     @Override
-    boolean writeAndFlushNoDelay(String commend) {
-        if (TextUtils.isEmpty(commend)) {
-            Log.w("写入指令失败：" + commend);
-            onSendData(commend, false);
-            return false;
-        }
+    boolean writeAndFlushNoDelay(byte[] bytes) {
         try {
-            mOutputStream.write(commend.getBytes());
+            mOutputStream.write(bytes);
             mOutputStream.flush();
-            Log.i("写入指令：" + commend);
-            onSendData(commend, true);
             return true;
         } catch (Exception e) {
             e.printStackTrace();
-            Log.w("写入指令失败：" + commend);
-            onSendData(commend, false);
             return false;
         }
     }

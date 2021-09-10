@@ -6,10 +6,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.hardware.usb.UsbManager;
 import android.os.Bundle;
-import android.text.TextUtils;
-
 import com.izis.serialport.util.Log;
-
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
@@ -126,26 +123,15 @@ public class SerialConnectPl2303 extends SerialConnect {
     }
 
     @Override
-    boolean writeAndFlushNoDelay(String commend) {
-        if (!pl2303LinkExist() || TextUtils.isEmpty(commend)) {
-            Log.w("写入指令失败：" + commend);
-            onSendData(commend, false);
+    boolean writeAndFlushNoDelay(byte[] bytes) {
+        if (!pl2303LinkExist()) {
             return false;
         }
 
         if (mSerialMulti != null) {
-            int i = mSerialMulti.PL2303Write(deviceIndex, commend.getBytes());
-            if (i < 0) {
-                Log.w("写入指令失败：" + commend);
-                onSendData(commend, false);
-            } else {
-                Log.i("写入指令：" + commend);
-                onSendData(commend, true);
-            }
+            int i = mSerialMulti.PL2303Write(deviceIndex, bytes);
             return i > 0;
         }
-        Log.w("写入指令失败：" + commend);
-        onSendData(commend, false);
         return false;
     }
 

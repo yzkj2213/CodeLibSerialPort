@@ -33,7 +33,7 @@ public class SerialConnectAPI extends SerialConnect {
             String action = intent.getAction();
             synchronized (this) {
                 if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
-                    UsbDevice device = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
+                    UsbDevice device = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
                     if (device != null) {
                         close();
                         Log.e(device.getDeviceName() + "断开");
@@ -186,21 +186,11 @@ public class SerialConnectAPI extends SerialConnect {
     }
 
     @Override
-    boolean writeAndFlushNoDelay(String commend) {
+    boolean writeAndFlushNoDelay(byte[] bytes) {
         if (usbDeviceConnection != null && usbEndpointOut != null) {
-            byte[] bytes = commend.getBytes();
             int i = usbDeviceConnection.bulkTransfer(usbEndpointOut, bytes, bytes.length, 80);
-            if (i < 0) {
-                Log.w("写入指令失败：" + commend);
-                onSendData(commend, false);
-            } else {
-                Log.i("写入指令：" + commend);
-                onSendData(commend, true);
-            }
             return i > 0;
         }
-        Log.w("写入指令失败：" + commend);
-        onSendData(commend, false);
         return false;
     }
 

@@ -2,12 +2,16 @@ package com.izis.serialport.connect;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.text.TextUtils;
 
 import com.izis.serialport.listener.SerialConnectListener;
 import com.izis.serialport.listener.SerialReceiveDataListener;
 import com.izis.serialport.listener.SerialSendDataListener;
+import com.izis.serialport.util.FileUtil;
 import com.izis.serialport.util.Log;
 import com.izis.serialport.util.ProtocolUtil;
+
+import java.io.File;
 import java.util.LinkedList;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -86,6 +90,12 @@ public abstract class SerialConnect {
      * @return 写入是否成功
      */
     public synchronized boolean writeAndFlush(String commend) {
+        if (TextUtils.isEmpty(commend)) {
+            Log.w("写入指令失败：" + commend);
+            onSendData(commend, false);
+            return false;
+        }
+
         int delayTime = ProtocolUtil.delayList.contains(key(lastCommend))
                 ? ProtocolUtil.minDelay * ProtocolUtil.delayTimes
                 : ProtocolUtil.minDelay;
@@ -99,16 +109,50 @@ public abstract class SerialConnect {
         }
         lastSendTime = System.currentTimeMillis();
         lastCommend = commend;
-        return writeAndFlushNoDelay(commend);
+
+        boolean result = writeAndFlushNoDelay(commend.getBytes());
+        if (result) {
+            Log.i("写入指令：" + commend);
+            onSendData(commend, true);
+        } else {
+            Log.w("写入指令失败：" + commend);
+            onSendData(commend, false);
+        }
+
+        return result;
+    }
+
+    /**
+     * 写文件，
+     */
+    public void writeFile(File file) {
+        Log.d("更新文件，验证串口连接是否正常");
+        if (isConnected()) {
+            Log.d("更新文件, 串口连接正常，准备写入");
+            byte[] data = FileUtil.getBytes(file);
+            Log.d("更新文件，文件长度：" + (data == null ? 0 : data.length));
+            if (data != null){
+                int max = data.length / 1024 + 1;
+                for (int i = 0; i < max; i++){
+                    int length = Math.min(data.length - i * 1024, 1024);
+                    byte[] msg = new byte[length];
+                    System.arraycopy(data, i * 1024, msg, 0, length);
+                    writeAndFlushNoDelay(msg);
+                }
+                Log.d("更新文件，写入完毕");
+            }
+        } else {
+            Log.e("棋盘未连接");
+        }
     }
 
     /**
      * 立即写入数据
      *
-     * @param commend 数据
+     * @param bytes 数据
      * @return 写入是否成功
      */
-    abstract boolean writeAndFlushNoDelay(String commend);
+    abstract boolean writeAndFlushNoDelay(byte[] bytes);
 
     void sleep() {
         try {
