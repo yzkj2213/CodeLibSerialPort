@@ -36,8 +36,7 @@ public class SerialConnectAPI extends SerialConnect {
                     UsbDevice device = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
                     if (device != null) {
                         close();
-                        Log.e(device.getDeviceName() + "断开");
-                        onConnectError();
+                        onConnectError(device.getDeviceName());
                     }
                 }
             }
@@ -121,7 +120,6 @@ public class SerialConnectAPI extends SerialConnect {
                 IntentFilter intentFilter = new IntentFilter(ACTION_DEVICE_PERMISSION);
                 usbPermissionReceiver = new UsbPermissionReceiver(this);
                 context.registerReceiver(usbPermissionReceiver, intentFilter);
-                Log.d("----------------请求授权----------------");
                 manager.requestPermission(device, pendingIntent);
             } else {
                 onConnectFail();
@@ -147,10 +145,9 @@ public class SerialConnectAPI extends SerialConnect {
 
                 config();
 
-                Log.i("打开" + device.getDeviceName() + "成功");
                 IntentFilter filter = new IntentFilter(UsbManager.ACTION_USB_DEVICE_DETACHED);
                 if (context != null) context.registerReceiver(usbReceiver, filter);
-                onConnectSuccess();
+                onConnectSuccess(device.getDeviceName());
 
                 new Thread() {
                     @Override

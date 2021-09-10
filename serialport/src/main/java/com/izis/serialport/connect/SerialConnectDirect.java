@@ -1,11 +1,6 @@
 package com.izis.serialport.connect;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.hardware.usb.UsbDevice;
-import android.hardware.usb.UsbManager;
 import com.izis.serialport.util.Log;
 import java.io.File;
 import java.io.InputStream;
@@ -18,27 +13,12 @@ import android_serialport_api.SerialPort;
 import android_serialport_api.SerialPortFinder;
 
 public class SerialConnectDirect extends SerialConnect {
-    private final Context context;
     private SerialPort mSerialPort = null;
     private OutputStream mOutputStream = null;
     private InputStream mInputStream = null;
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
-    private final BroadcastReceiver usbReceiver = new BroadcastReceiver() {
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-
-            if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
-                UsbDevice device = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
-                if (device != null) {
-                    Log.e(device.getDeviceName() + "断开");
-                    close();
-                    onConnectError();
-                }
-            }
-        }
-    };
     public SerialConnectDirect(Context context) {
-        this.context = context;
+
     }
 
     @Override
@@ -71,11 +51,7 @@ public class SerialConnectDirect extends SerialConnect {
             mInputStream = mSerialPort.getInputStream();
             mOutputStream = mSerialPort.getOutputStream();
 
-            IntentFilter filter = new IntentFilter(UsbManager.ACTION_USB_DEVICE_DETACHED);
-            if (context != null) context.registerReceiver(usbReceiver, filter);
-
-            onConnectSuccess();
-            Log.i("连接设备成功");
+            onConnectSuccess(device);
 
             new Thread() {
                 @Override
@@ -91,14 +67,6 @@ public class SerialConnectDirect extends SerialConnect {
 
     @Override
     void disConnect() {
-        try {
-            if (context != null) {
-                context.unregisterReceiver(usbReceiver);
-            }
-        } catch (Exception e) {
-            //防止多次调用close报  Receiver not registered 异常
-        }
-
         if (mSerialPort != null)
             executorService.execute(() -> mSerialPort.close());
     }

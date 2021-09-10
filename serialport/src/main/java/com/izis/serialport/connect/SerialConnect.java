@@ -91,7 +91,6 @@ public abstract class SerialConnect {
      */
     public synchronized boolean writeAndFlush(String commend) {
         if (TextUtils.isEmpty(commend)) {
-            Log.w("写入指令失败：" + commend);
             onSendData(commend, false);
             return false;
         }
@@ -111,13 +110,7 @@ public abstract class SerialConnect {
         lastCommend = commend;
 
         boolean result = writeAndFlushNoDelay(commend.getBytes());
-        if (result) {
-            Log.i("写入指令：" + commend);
-            onSendData(commend, true);
-        } else {
-            Log.w("写入指令失败：" + commend);
-            onSendData(commend, false);
-        }
+        onSendData(commend, result);
 
         return result;
     }
@@ -131,9 +124,9 @@ public abstract class SerialConnect {
             Log.d("更新文件, 串口连接正常，准备写入");
             byte[] data = FileUtil.getBytes(file);
             Log.d("更新文件，文件长度：" + (data == null ? 0 : data.length));
-            if (data != null){
+            if (data != null) {
                 int max = data.length / 1024 + 1;
-                for (int i = 0; i < max; i++){
+                for (int i = 0; i < max; i++) {
                     int length = Math.min(data.length - i * 1024, 1024);
                     byte[] msg = new byte[length];
                     System.arraycopy(data, i * 1024, msg, 0, length);
@@ -292,10 +285,8 @@ public abstract class SerialConnect {
             Pattern pattern = Pattern.compile("[^A-Za-z0-9~#]");
             Matcher matcher = pattern.matcher(group);
             if (matcher.find()) {
-                Log.w("得到一条异常指令:" + group);
                 onReceiveErrorData(group);
             } else {
-                Log.i("得到一条正常指令:" + group);
                 onReceiveNormalData(group);
             }
 
@@ -308,7 +299,6 @@ public abstract class SerialConnect {
         }
 
         if (totalCommands.length() != 0) {
-            Log.w("得到一条异常指令:" + totalCommands);
             onReceiveErrorData(totalCommands);
         }
 
@@ -330,7 +320,8 @@ public abstract class SerialConnect {
 
     private final Handler main = new Handler(Looper.getMainLooper());
 
-    void onConnectSuccess() {
+    void onConnectSuccess(String deviceName) {
+        Log.i("连接设备 " + deviceName + " 成功");
         connectState = ConnectState.Connected;
         connectNum = 0;
         if (connectListener != null)
@@ -355,7 +346,8 @@ public abstract class SerialConnect {
 
     }
 
-    void onConnectError() {
+    void onConnectError(String deviceName) {
+        Log.e(deviceName + " 连接中断");
         connectState = ConnectState.DisConnect;
         //异常中断直接重连
         new Timer().schedule(new TimerTask() {
@@ -370,16 +362,23 @@ public abstract class SerialConnect {
     }
 
     void onReceiveNormalData(String data) {
+        Log.i("得到一条正常指令:" + data);
         if (receiveDataListener != null)
             main.post(() -> receiveDataListener.onReceiveNormalData(data));
     }
 
     void onReceiveErrorData(String data) {
+        Log.w("得到一条异常指令:" + data);
         if (receiveDataListener != null)
             main.post(() -> receiveDataListener.onReceiveErrorData(data));
     }
 
     void onSendData(String data, boolean result) {
+        if (result) {
+            Log.i("写入指令：" + data);
+        } else {
+            Log.w("写入指令失败：" + data);
+        }
         if (sendDataListener != null)
             main.post(() -> sendDataListener.onSendData(data, result));
     }

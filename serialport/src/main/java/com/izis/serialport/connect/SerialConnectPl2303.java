@@ -47,9 +47,8 @@ public class SerialConnectPl2303 extends SerialConnect {
                     try {
                         int index = Integer.parseInt(str);
                         if (deviceIndex == index) {
-                            Log.e("index" + str + "断开");
                             serialConnect.close();
-                            serialConnect.onConnectError();
+                            serialConnect.onConnectError(mSerialMulti.PL2303getDevicePathByIndex(deviceIndex));
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -88,14 +87,12 @@ public class SerialConnectPl2303 extends SerialConnect {
                             Log.e("打开连接失败");
                             onConnectFail();
                         } else {
-                            Log.i("打开" + mSerialMulti.PL2303getDevicePathByIndex(deviceIndex) + "成功!");
-
                             IntentFilter filter = new IntentFilter();
                             filter.addAction(mSerialMulti.PLUART_MESSAGE);
                             mPlMultiLibReceiver = new PLMultiLibReceiver(mSerialMulti, deviceIndex, SerialConnectPl2303.this);
                             mContext.registerReceiver(mPlMultiLibReceiver, filter);
 
-                            onConnectSuccess();
+                            onConnectSuccess(mSerialMulti.PL2303getDevicePathByIndex(deviceIndex));
 
                             requestData();
                         }

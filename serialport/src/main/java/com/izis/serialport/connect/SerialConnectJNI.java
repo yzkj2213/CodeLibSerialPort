@@ -30,9 +30,8 @@ public class SerialConnectJNI extends SerialConnect {
             if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
                 UsbDevice device = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
                 if (device != null) {
-                    Log.e(device.getDeviceName() + "断开");
                     close();
-                    onConnectError();
+                    onConnectError(device.getDeviceName());
                 }
             }
         }
@@ -75,8 +74,7 @@ public class SerialConnectJNI extends SerialConnect {
             IntentFilter filter = new IntentFilter(UsbManager.ACTION_USB_DEVICE_DETACHED);
             if (context != null) context.registerReceiver(usbReceiver, filter);
 
-            onConnectSuccess();
-            Log.i("连接设备成功");
+            onConnectSuccess(device);
 
             new Thread() {
                 @Override
