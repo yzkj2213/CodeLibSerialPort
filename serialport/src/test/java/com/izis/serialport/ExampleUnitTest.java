@@ -31,22 +31,23 @@ public class ExampleUnitTest {
 //            System.out.println(m.group());
 //        }
 //
-//        Pattern pattern = Pattern.compile("[^A-Za-z0-9~#]");
-//        Matcher matcher = pattern.matcher(data);
-//        System.out.println(matcher.find());
+        String data = "~HOT002.#";
+        Pattern pattern = Pattern.compile("[^A-Za-z0-9~#.,]");
+        Matcher matcher = pattern.matcher(data);
+        System.out.println(matcher.find());
 
 
 
-        TestSync testSync = new TestSync();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                testSync.test1();
-            }
-        }).start();
-        testSync.test3();
-
-        Thread.sleep(10 * 1000);
+//        TestSync testSync = new TestSync();
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                testSync.test1();
+//            }
+//        }).start();
+//        testSync.test3();
+//
+//        Thread.sleep(10 * 1000);
 
     }
 }

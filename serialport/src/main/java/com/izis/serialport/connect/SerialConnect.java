@@ -282,7 +282,7 @@ public abstract class SerialConnect {
             String group = m.group();
 
 
-            Pattern pattern = Pattern.compile("[^A-Za-z0-9~#]");
+            Pattern pattern = Pattern.compile("[^A-Za-z0-9~#.]");
             Matcher matcher = pattern.matcher(group);
             if (matcher.find()) {
                 onReceiveErrorData(group);
