@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.util.HashMap;
 
 public class SerialConnectAPI extends SerialConnect {
-    private final Context context;
     private UsbManager manager;
     private UsbDevice device;
     private UsbInterface usbInterface;
@@ -42,6 +41,10 @@ public class SerialConnectAPI extends SerialConnect {
             }
         }
     };
+
+    public SerialConnectAPI(Context context) {
+        super(context);
+    }
 
     private static class UsbPermissionReceiver extends BroadcastReceiver {
         private final SerialConnectAPI connect;
@@ -69,9 +72,6 @@ public class SerialConnectAPI extends SerialConnect {
         }
     }
 
-    public SerialConnectAPI(Context context) {
-        this.context = context;
-    }
 
     @Override
     void openConnect() {

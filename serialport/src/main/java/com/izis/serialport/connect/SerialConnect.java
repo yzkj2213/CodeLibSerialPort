@@ -1,5 +1,6 @@
 package com.izis.serialport.connect;
 
+import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
@@ -40,6 +41,7 @@ enum ConnectState {
  * 串口连接
  */
 public abstract class SerialConnect {
+    final Context context;
     SerialConnectListener connectListener;
     SerialReceiveDataListener receiveDataListener;
     SerialSendDataListener sendDataListener;
@@ -48,6 +50,10 @@ public abstract class SerialConnect {
     private int connectNumMax = 3;//最大重连次数
     private String lastCommend = "";//最后一条指令
     private long lastSendTime = 0;//最后一条指令的发送时间
+
+    public SerialConnect(Context context) {
+        this.context = context;
+    }
 
     public void setConnectNumMax(int connectNumMax) {
         this.connectNumMax = connectNumMax;
@@ -339,12 +345,16 @@ public abstract class SerialConnect {
                 }
             }, 1200);
         } else {
-            //重连失败后回调通知
-            if (connectListener != null)
-                main.post(() -> connectListener.onConnectFail(connectNum));
+            onConnectFailNoReConnect();
         }
-
     }
+
+    void onConnectFailNoReConnect(){
+        //重连失败后回调通知
+        if (connectListener != null)
+            main.post(() -> connectListener.onConnectFail(connectNum));
+    }
+
 
     void onConnectError(String deviceName) {
         Log.e(deviceName + " 连接中断");

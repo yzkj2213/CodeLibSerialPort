@@ -18,7 +18,6 @@ import android_serialport_api.SerialPort;
 import android_serialport_api.SerialPortFinder;
 
 public class SerialConnectJNI extends SerialConnect {
-    private final Context context;
     private SerialPort mSerialPort = null;
     private OutputStream mOutputStream = null;
     private InputStream mInputStream = null;
@@ -38,7 +37,7 @@ public class SerialConnectJNI extends SerialConnect {
     };
 
     public SerialConnectJNI(Context context) {
-        this.context = context;
+        super(context);
     }
 
     @Override

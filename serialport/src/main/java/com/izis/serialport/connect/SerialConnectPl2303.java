@@ -24,7 +24,6 @@ public class SerialConnectPl2303 extends SerialConnect {
     private final PL2303MultiLib.FlowControl mFlowControl = PL2303MultiLib.FlowControl.XONXOFF;  // 是否有效？
     private PL2303MultiLib mSerialMulti;
     private ExecutorService executorService;
-    private final Context mContext;
     private PLMultiLibReceiver mPlMultiLibReceiver;
 
     static class PLMultiLibReceiver extends BroadcastReceiver {
@@ -58,14 +57,14 @@ public class SerialConnectPl2303 extends SerialConnect {
         }
     }
 
-    public SerialConnectPl2303(Context mContext) {
-        this.mContext = mContext;
+    public SerialConnectPl2303(Context context) {
+        super(context);
     }
 
     @Override
     void openConnect() {
         if (mSerialMulti == null) {
-            mSerialMulti = new PL2303MultiLib((UsbManager) mContext.getSystemService(Context.USB_SERVICE), mContext, ACTION_USB_PERMISSION);
+            mSerialMulti = new PL2303MultiLib((UsbManager) context.getSystemService(Context.USB_SERVICE), context, ACTION_USB_PERMISSION);
         }
 
         new Timer().schedule(new TimerTask() {
@@ -90,7 +89,7 @@ public class SerialConnectPl2303 extends SerialConnect {
                             IntentFilter filter = new IntentFilter();
                             filter.addAction(mSerialMulti.PLUART_MESSAGE);
                             mPlMultiLibReceiver = new PLMultiLibReceiver(mSerialMulti, deviceIndex, SerialConnectPl2303.this);
-                            mContext.registerReceiver(mPlMultiLibReceiver, filter);
+                            context.registerReceiver(mPlMultiLibReceiver, filter);
 
                             onConnectSuccess(mSerialMulti.PL2303getDevicePathByIndex(deviceIndex));
 
@@ -107,7 +106,7 @@ public class SerialConnectPl2303 extends SerialConnect {
         if (mSerialMulti != null) {
             try {
                 if (mPlMultiLibReceiver != null)
-                    mContext.unregisterReceiver(mPlMultiLibReceiver);
+                    context.unregisterReceiver(mPlMultiLibReceiver);
             } catch (Exception e) {
                 //防止多次调用close报  Receiver not registered 异常
             }

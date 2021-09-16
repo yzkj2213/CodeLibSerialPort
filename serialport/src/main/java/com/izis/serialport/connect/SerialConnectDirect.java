@@ -18,7 +18,7 @@ public class SerialConnectDirect extends SerialConnect {
     private InputStream mInputStream = null;
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     public SerialConnectDirect(Context context) {
-
+        super(context);
     }
 
     @Override
