@@ -9,12 +9,22 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.location.LocationManager;
 import android.provider.Settings;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.izis.serialport.R;
 import com.izis.serialport.util.Log;
 
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -23,7 +33,7 @@ class SerialConnectBluetooth extends SerialConnect {
 
     private final FragmentActivity activity;
     private final BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-    private final Set<BluetoothDevice> searchDevices = new HashSet<>();
+    private final List<BluetoothDevice> searchDevices = new ArrayList<>();
     // Create a BroadcastReceiver for ACTION_FOUND.
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
@@ -33,7 +43,10 @@ class SerialConnectBluetooth extends SerialConnect {
                 // object and its info from the Intent.
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 Log.i("查找到蓝牙设备：" + device);
-                searchDevices.add(device);
+                if (!searchDevices.contains(device)){
+                    searchDevices.add(device);
+                    adapter.notifyDataSetChanged();
+                }
             }
         }
     };
@@ -160,6 +173,7 @@ class SerialConnectBluetooth extends SerialConnect {
         boolean startDiscovery = bluetoothAdapter.startDiscovery();
         if (startDiscovery) {
             Log.i("蓝牙已打开，未发现已配对设备，开始查找周围设备...");
+            showSearchUI();
             new Timer().schedule(new TimerTask() {
                 @Override
                 public void run() {
@@ -199,6 +213,62 @@ class SerialConnectBluetooth extends SerialConnect {
         if (bluetoothAdapter.isDiscovering()) {
             bluetoothAdapter.cancelDiscovery();
             Log.i("停止查找蓝牙设备");
+            closeSearchUI();
+        }
+    }
+
+    private BottomSheetDialog dialog;
+    private final BluetoothUIAdapter adapter = new BluetoothUIAdapter(searchDevices, R.layout.bluetooth_search_ui_item);
+
+    private void showSearchUI() {
+        if (dialog == null)
+            dialog = new BottomSheetDialog(activity);
+        dialog.setCancelable(false);
+        View view = activity.getLayoutInflater().inflate(R.layout.bluetooth_search_ui, null);
+        RecyclerView recyclerView = view.findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(activity));
+        recyclerView.setAdapter(adapter);
+        dialog.setContentView(view);
+        dialog.show();
+    }
+
+    private void closeSearchUI() {
+        if (dialog != null && dialog.isShowing())
+            dialog.dismiss();
+    }
+
+    static class BluetoothUIAdapter extends RecyclerView.Adapter<BluetoothUIAdapter.MyViewHolder> {
+        private final List<BluetoothDevice> data;
+        private final int layoutRes;
+
+        public BluetoothUIAdapter(List<BluetoothDevice> data, int layoutRes) {
+            this.data = data;
+            this.layoutRes = layoutRes;
+        }
+
+        @NonNull
+        @Override
+        public BluetoothUIAdapter.MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            return new MyViewHolder(LayoutInflater.from(parent.getContext()).inflate(layoutRes, parent,false));
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull BluetoothUIAdapter.MyViewHolder holder, int position) {
+            holder.tvName.setText(data.get(position).getName());
+        }
+
+        @Override
+        public int getItemCount() {
+            return data == null ? 0 : data.size();
+        }
+
+        static class MyViewHolder extends RecyclerView.ViewHolder {
+            TextView tvName;
+
+            public MyViewHolder(@NonNull View itemView) {
+                super(itemView);
+                tvName = itemView.findViewById(R.id.tvName);
+            }
         }
     }
 }
