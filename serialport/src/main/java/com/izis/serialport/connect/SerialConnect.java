@@ -13,6 +13,7 @@ import com.izis.serialport.util.Log;
 import com.izis.serialport.util.ProtocolUtil;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -40,7 +41,7 @@ enum ConnectState {
 /**
  * 串口连接
  */
-public abstract class SerialConnect {
+public abstract class SerialConnect implements Serializable {
     final Context context;
     SerialConnectListener connectListener;
     SerialReceiveDataListener receiveDataListener;
