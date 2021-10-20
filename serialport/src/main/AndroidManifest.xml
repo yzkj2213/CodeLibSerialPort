@@ -3,12 +3,11 @@
     package="com.izis.serialport">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
 
     <!-- If your app targets Android 9 or lower, you can declare
          ACCESS_COARSE_LOCATION instead. -->
-<!--    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />-->
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+<!--    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />-->
 </manifest>

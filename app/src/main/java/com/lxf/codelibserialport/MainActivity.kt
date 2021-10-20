@@ -3,6 +3,7 @@ package com.lxf.codelibserialport
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import com.izis.serialport.connect.SerialConnectBluetooth
 import com.izis.serialport.connect.SerialConnectDirect
 
 class MainActivity : AppCompatActivity() {
@@ -11,7 +12,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
 
-        val connect = SerialConnectDirect(this)
+        val connect = SerialConnectBluetooth(this)
         findViewById<View>(R.id.btnOpen).setOnClickListener {
             connect.open()
         }

@@ -350,6 +350,7 @@ public abstract class SerialConnect {
     }
 
     void onConnectFailNoReConnect(){
+        connectState = ConnectState.DisConnect;
         //重连失败后回调通知
         if (connectListener != null)
             main.post(() -> connectListener.onConnectFail(connectNum));
