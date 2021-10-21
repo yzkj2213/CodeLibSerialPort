@@ -288,12 +288,16 @@ public class SerialConnectBluetooth extends SerialConnect {
         requestGPS();
     }
 
+    private boolean checkIfLocationOpened() {
+        final LocationManager manager = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
+        return manager.isProviderEnabled(LocationManager.GPS_PROVIDER) || manager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+    }
+
     /**
      * 请求位置权限
      */
     private void requestGPS() {
-        LocationManager locationManager = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
-        boolean isGpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        boolean isGpsEnabled = checkIfLocationOpened();
         if (!isGpsEnabled) {
             Log.i("GPS未打开，请求打开GPS");
             PermissionsFragment.getInstance(activity)
