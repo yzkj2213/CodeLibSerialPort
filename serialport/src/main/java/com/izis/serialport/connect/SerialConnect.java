@@ -13,7 +13,6 @@ import com.izis.serialport.util.Log;
 import com.izis.serialport.util.ProtocolUtil;
 
 import java.io.File;
-import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -41,12 +40,12 @@ enum ConnectState {
 /**
  * 串口连接
  */
-public abstract class SerialConnect implements Serializable {
+public abstract class SerialConnect {
     final Context context;
     SerialConnectListener connectListener;
     SerialReceiveDataListener receiveDataListener;
     SerialSendDataListener sendDataListener;
-    private ConnectState connectState = ConnectState.DisConnect;//连接状态
+    ConnectState connectState = ConnectState.DisConnect;//连接状态
     private int connectNum = 0;//连接次数
     private int connectNumMax = 3;//最大重连次数
     private String lastCommend = "";//最后一条指令

@@ -7,6 +7,7 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.location.LocationManager;
@@ -404,7 +405,10 @@ public class SerialConnectBluetooth extends SerialConnect {
         if (dialog == null) {
             dialog = new BottomSheetDialog(activity);
             dialog.setCanceledOnTouchOutside(false);
-            dialog.setOnDismissListener(dialog -> cancelDiscovery());
+            dialog.setOnDismissListener(dialog -> {
+                cancelDiscovery();
+                connectState = ConnectState.DisConnect;
+            });
             View view = activity.getLayoutInflater().inflate(R.layout.bluetooth_search_ui, null);
             progressBar = view.findViewById(R.id.progressBar);
             btnReSearch = view.findViewById(R.id.btnReSearch);
