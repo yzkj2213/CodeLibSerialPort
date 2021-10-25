@@ -40,7 +40,7 @@ public class PermissionsFragment extends Fragment {
         }
     });
 
-    private PermissionsFragment() {
+    public PermissionsFragment() {
     }
 
     static PermissionsFragment getInstance(FragmentActivity activity) {

@@ -7,7 +7,6 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.location.LocationManager;
@@ -344,7 +343,7 @@ public class SerialConnectBluetooth extends SerialConnect {
             new Timer().schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    //10s后结束查找
+                    //20s后结束查找
                     cancelDiscovery();
                 }
             }, 20 * 1000);
