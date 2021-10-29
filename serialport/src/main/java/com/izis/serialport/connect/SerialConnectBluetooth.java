@@ -81,6 +81,7 @@ class ConnectThread implements Runnable {
             outputStream = bluetoothSocket.getOutputStream();
 
             serialConnectBluetooth.onConnectSuccess(bluetoothDevice.getName());
+            serialConnectBluetooth.bluetoothDevice = bluetoothDevice;
             main.post(serialConnectBluetooth::closeConnectUI);
 
             requestData();
@@ -135,6 +136,7 @@ class ConnectThread implements Runnable {
             } catch (Exception e) {
                 e.printStackTrace();
                 serialConnectBluetooth.onConnectError(bluetoothDevice.getName());
+                break;
             }
         }
     }
@@ -163,6 +165,7 @@ public class SerialConnectBluetooth extends SerialConnect {
     private final List<Device> searchDevices = new ArrayList<>();
     private ConnectThread connectThread;
     private final ProgressDialog progressDialog;
+    BluetoothDevice bluetoothDevice;//最后一次连接的蓝牙设备，用于连接断开时尝试自动重连
     // Create a BroadcastReceiver for ACTION_FOUND.
     private final BroadcastReceiver searchReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
@@ -271,6 +274,12 @@ public class SerialConnectBluetooth extends SerialConnect {
      * 获取设备
      */
     private void getDevice() {
+        if (bluetoothDevice != null) {
+            connectThread = new ConnectThread(SerialConnectBluetooth.this, bluetoothDevice);
+            executorService.execute(connectThread);
+            return;
+        }
+
         Set<BluetoothDevice> bondedDevices = bluetoothAdapter.getBondedDevices();
 
         Log.i("蓝牙已打开，发现已配对设备" + bondedDevices.size() + "台：");
