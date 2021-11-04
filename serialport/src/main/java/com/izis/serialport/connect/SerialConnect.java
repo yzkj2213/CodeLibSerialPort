@@ -59,6 +59,22 @@ public abstract class SerialConnect {
         this.connectNumMax = connectNumMax;
     }
 
+    public void setMinDelay(int time) {
+        ProtocolUtil.minDelay = time;
+    }
+
+    public void setDelayTimes(int times) {
+        ProtocolUtil.delayTimes = times;
+    }
+
+    public void addResponseCommend(String key, String value) {
+        ProtocolUtil.responseMap.put(key, value);
+    }
+
+    public void addDelayCommend(String commend) {
+        ProtocolUtil.delayList.add(commend);
+    }
+
     /**
      * 打开连接
      */
@@ -349,7 +365,7 @@ public abstract class SerialConnect {
         }
     }
 
-    void onConnectFailNoReConnect(){
+    void onConnectFailNoReConnect() {
         connectState = ConnectState.DisConnect;
         //重连失败后回调通知
         if (connectListener != null)

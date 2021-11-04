@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.lxf.codelibserialport">
-<!--    <uses-permission android:name="android.permission.HARDWARE_TEST" />-->
+    <!-- <uses-permission android:name="android.permission.HARDWARE_TEST" /> -->
     <uses-feature android:name="android.hardware.usb.host" />
 
     <application
@@ -11,6 +11,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.CodeLibSerialPort">
+        <activity android:name=".ServerBluetoothActivity"></activity>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

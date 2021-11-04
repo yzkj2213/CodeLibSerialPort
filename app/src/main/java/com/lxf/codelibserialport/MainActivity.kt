@@ -1,9 +1,11 @@
 package com.lxf.codelibserialport
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import com.izis.serialport.connect.SerialConnectBluetooth
+import com.izis.serialport.connect.SerialConnectService
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -11,7 +13,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
 
-        val connect = SerialConnectBluetooth(this)
+        val connect = SerialConnectService(this)
         findViewById<View>(R.id.btnOpen).setOnClickListener {
             connect.open()
         }
@@ -29,6 +31,10 @@ class MainActivity : AppCompatActivity() {
 //
 //            connect.writeAndFlush("~BOD19#")
             connect.writeAndFlush("~STA#")
+        }
+
+        findViewById<View>(R.id.btnServerBluetooth).setOnClickListener {
+            startActivity(Intent(this, ServerBluetoothActivity::class.java))
         }
     }
 }
