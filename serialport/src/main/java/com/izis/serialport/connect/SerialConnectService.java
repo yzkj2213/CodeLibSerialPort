@@ -43,8 +43,16 @@ public class SerialConnectService extends SerialConnect {
             return true;
         } catch (Exception e) {
             e.printStackTrace();
+            noticeFront();
         }
         return false;
+    }
+
+    //发送指令失败，通知前台, 可能是服务没连接，也可能是服务异常死亡
+    private void noticeFront() {
+        Log.e("发送指令失败，通知前台，会回调onConnectFail方法, 可能是服务没连接，也可能是服务异常死亡");
+        close();
+        onConnectFailNoReConnect();
     }
 
     @Override
@@ -53,6 +61,7 @@ public class SerialConnectService extends SerialConnect {
             serialService.writeFile(file.getAbsolutePath());
         } catch (Exception e) {
             e.printStackTrace();
+            noticeFront();
         }
     }
 
@@ -62,6 +71,7 @@ public class SerialConnectService extends SerialConnect {
             serialService.addCommend(commend);
         } catch (Exception e) {
             e.printStackTrace();
+            noticeFront();
         }
     }
 
@@ -71,6 +81,7 @@ public class SerialConnectService extends SerialConnect {
             serialService.clearCommend();
         } catch (Exception e) {
             e.printStackTrace();
+            noticeFront();
         }
     }
 
@@ -80,6 +91,7 @@ public class SerialConnectService extends SerialConnect {
             serialService.setConnectMaxNum(connectNumMax);
         } catch (Exception e) {
             e.printStackTrace();
+            noticeFront();
         }
     }
 
@@ -89,6 +101,7 @@ public class SerialConnectService extends SerialConnect {
             serialService.setSendMaxNum(sendNumMax);
         } catch (Exception e) {
             e.printStackTrace();
+            noticeFront();
         }
     }
 
@@ -99,6 +112,7 @@ public class SerialConnectService extends SerialConnect {
             serialService.setMinDelay(time);
         } catch (Exception e) {
             e.printStackTrace();
+            noticeFront();
         }
     }
 
@@ -108,6 +122,7 @@ public class SerialConnectService extends SerialConnect {
             serialService.setDelayTimes(times);
         } catch (Exception e) {
             e.printStackTrace();
+            noticeFront();
         }
     }
 
@@ -117,6 +132,7 @@ public class SerialConnectService extends SerialConnect {
             serialService.addDelayCommend(commend);
         } catch (Exception e) {
             e.printStackTrace();
+            noticeFront();
         }
     }
 
@@ -126,6 +142,7 @@ public class SerialConnectService extends SerialConnect {
             serialService.addResponseCommend(key, value);
         } catch (Exception e) {
             e.printStackTrace();
+            noticeFront();
         }
     }
 
@@ -150,7 +167,7 @@ public class SerialConnectService extends SerialConnect {
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            Log.e("串口服务连接断开<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+            Log.e("串口服务连接异常断开<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
             try {
                 serialService.unRegisterListener(listener);
                 onConnectFailNoReConnect();
