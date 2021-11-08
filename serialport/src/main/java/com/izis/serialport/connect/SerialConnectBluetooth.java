@@ -57,8 +57,8 @@ class ConnectThread implements Runnable {
         try {
             // Get a BluetoothSocket to connect with the given BluetoothDevice.
             // MY_UUID is the app's UUID string, also used in the server code.
-            tmp = device.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
-//            tmp = device.createInsecureRfcommSocketToServiceRecord(UUID.fromString("000-000-000-000-000"));
+//            tmp = device.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
+            tmp = device.createInsecureRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
 //            tmp = device.createRfcommSocketToServiceRecord(UUID.randomUUID());
 //            tmp = device.createInsecureRfcommSocketToServiceRecord(UUID.randomUUID());
 //            tmp = device.createInsecureRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));

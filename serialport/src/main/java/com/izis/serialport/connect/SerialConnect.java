@@ -79,7 +79,7 @@ public abstract class SerialConnect {
      * 打开连接
      */
     public synchronized void open() {
-        if (connectState == ConnectState.ConnectIng) return;
+        if (connectState != ConnectState.DisConnect) return;
         connectState = ConnectState.ConnectIng;
         connectNum++;
 
@@ -90,7 +90,14 @@ public abstract class SerialConnect {
      * 关闭连接
      */
     public void close() {
+        close(true);
+    }
+
+    public void close(boolean cleanCacheCommend){
         connectState = ConnectState.DisConnect;
+        //主动断开时清除缓存指令
+        if (cleanCacheCommend)
+            clearCommend();
 
         disConnect();
     }
@@ -236,7 +243,7 @@ public abstract class SerialConnect {
             public void run() {
                 send();
             }
-        }, 200);
+        }, 500);
     }
 
     private synchronized void loopNext() {
@@ -382,7 +389,7 @@ public abstract class SerialConnect {
             public void run() {
                 open();
             }
-        }, 1200);
+        }, 1500);
 
         if (connectListener != null)
             main.post(() -> connectListener.onConnectError());

@@ -13,7 +13,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
 
-        val connect = SerialConnectService(this)
+        val connect = SerialConnectBluetooth(this)
         findViewById<View>(R.id.btnOpen).setOnClickListener {
             connect.open()
         }
