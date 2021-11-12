@@ -129,7 +129,7 @@ public class SerialConnectBLE extends SerialConnect {
             BluetoothGattCharacteristic characteristicRead = service.getCharacteristic(UUID.fromString(UUID_READ));
             characteristicWrite = service.getCharacteristic(UUID.fromString(UUID_WRITE));
 
-            if (characteristicRead != null){
+            if (characteristicRead != null) {
                 for (BluetoothGattDescriptor descriptor : characteristicRead.getDescriptors()) {
                     descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
                     gatt.writeDescriptor(descriptor);
@@ -156,11 +156,6 @@ public class SerialConnectBLE extends SerialConnect {
 //            Log.e("---------onWrite:" + content);
             if (index >= 0) {
                 index += 20;
-                try {
-                    Thread.sleep(30);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
                 sendData(bytes, index);
             }
         }
@@ -215,9 +210,13 @@ public class SerialConnectBLE extends SerialConnect {
     boolean writeAndFlushNoDelay(byte[] bytes) {
         if (characteristicWrite == null || bluetoothGatt == null) return false;
         this.bytes = bytes;
-        index = 0;
-        sendData(bytes, index);
-        return true;
+        if (index < 0) {
+            index = 0;
+            sendData(bytes, index);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     private void sendData(byte[] bytes, int offset) {
