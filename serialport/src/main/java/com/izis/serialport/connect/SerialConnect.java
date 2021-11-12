@@ -59,18 +59,30 @@ public abstract class SerialConnect {
         this.connectNumMax = connectNumMax;
     }
 
+    /**
+     * 设置指令最小延迟间隔
+     */
     public void setMinDelay(int time) {
         ProtocolUtil.minDelay = time;
     }
 
+    /**
+     * 设置需要多倍延迟指令的延迟倍率
+     */
     public void setDelayTimes(int times) {
         ProtocolUtil.delayTimes = times;
     }
 
+    /**
+     * 添加需要验证响应的指令
+     */
     public void addResponseCommend(String key, String value) {
         ProtocolUtil.responseMap.put(key, value);
     }
 
+    /**
+     * 设置添加需要多倍延迟的指令
+     */
     public void addDelayCommend(String commend) {
         ProtocolUtil.delayList.add(commend);
     }
@@ -87,13 +99,13 @@ public abstract class SerialConnect {
     }
 
     /**
-     * 关闭连接
+     * 关闭连接， 默认清除缓存指令
      */
     public void close() {
         close(true);
     }
 
-    public void close(boolean cleanCacheCommend){
+    public void close(boolean cleanCacheCommend) {
         connectState = ConnectState.DisConnect;
         //主动断开时清除缓存指令
         if (cleanCacheCommend)
@@ -118,7 +130,7 @@ public abstract class SerialConnect {
      * @param commend 数据
      * @return 写入是否成功
      */
-    public synchronized boolean writeAndFlush(String commend) {
+    public boolean writeAndFlush(String commend) {
         if (TextUtils.isEmpty(commend)) {
             onSendData(commend, false);
             return false;

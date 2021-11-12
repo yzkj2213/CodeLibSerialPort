@@ -125,7 +125,6 @@ class ConnectThread implements Runnable {
                 byte[] buffer = new byte[1024];
                 if (inputStream == null) return;
                 int size = inputStream.read(buffer);
-                System.out.println(size);
                 if (size > 0) {
                     byte[] readBytes = new byte[size];
                     System.arraycopy(buffer, 0, readBytes, 0, size);
@@ -135,7 +134,9 @@ class ConnectThread implements Runnable {
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                serialConnectBluetooth.onConnectError(bluetoothDevice.getName());
+                serialConnectBluetooth.disConnect();
+                serialConnectBluetooth.onConnectFailNoReConnect();
+                break;
             }
         }
     }
