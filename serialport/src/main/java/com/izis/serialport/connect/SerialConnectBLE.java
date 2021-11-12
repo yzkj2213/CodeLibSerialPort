@@ -209,8 +209,8 @@ public class SerialConnectBLE extends SerialConnect {
     @Override
     boolean writeAndFlushNoDelay(byte[] bytes) {
         if (characteristicWrite == null || bluetoothGatt == null) return false;
-        this.bytes = bytes;
         if (index < 0) {
+            this.bytes = bytes;
             index = 0;
             sendData(bytes, index);
             return true;
