@@ -119,7 +119,7 @@ public class SerialConnectPl2303 extends SerialConnect {
     }
 
     @Override
-    boolean writeAndFlushNoDelay(byte[] bytes) {
+    public boolean writeBytes(byte[] bytes) {
         if (!pl2303LinkExist()) {
             return false;
         }

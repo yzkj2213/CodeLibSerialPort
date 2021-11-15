@@ -150,7 +150,7 @@ public abstract class SerialConnect {
         lastSendTime = System.currentTimeMillis();
         lastCommend = commend;
 
-        boolean result = writeAndFlushNoDelay(commend.getBytes());
+        boolean result = writeBytes(commend.getBytes());
         onSendData(commend, result);
 
         return result;
@@ -171,7 +171,7 @@ public abstract class SerialConnect {
                     int length = Math.min(data.length - i * 1024, 1024);
                     byte[] msg = new byte[length];
                     System.arraycopy(data, i * 1024, msg, 0, length);
-                    writeAndFlushNoDelay(msg);
+                    writeBytes(msg);
                 }
                 Log.d("更新文件，写入完毕");
             }
@@ -186,7 +186,7 @@ public abstract class SerialConnect {
      * @param bytes 数据
      * @return 写入是否成功
      */
-    abstract boolean writeAndFlushNoDelay(byte[] bytes);
+    public abstract boolean writeBytes(byte[] bytes);
 
     void sleep() {
         try {

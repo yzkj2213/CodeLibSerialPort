@@ -10,6 +10,7 @@ interface ISerialService {
     void writeAndFlush(String commend);
     void addCommend(String commend);
     void writeFile(String path);
+    boolean writeBytes(in byte[] bytes);
     void clearCommend();
 
     void setConnectMaxNum(int num);

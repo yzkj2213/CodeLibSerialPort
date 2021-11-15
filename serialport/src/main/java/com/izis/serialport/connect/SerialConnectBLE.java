@@ -33,6 +33,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.izis.serialport.R;
 import com.izis.serialport.util.Log;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -45,6 +46,7 @@ public class SerialConnectBLE extends SerialConnect {
     private static final String UUID_SERVER = "0000ffe0-0000-1000-8000-00805f9b34fb";
     private static final String UUID_READ = "0000ffe1-0000-1000-8000-00805f9b34fb";
     private static final String UUID_WRITE = "0000ffe2-0000-1000-8000-00805f9b34fb";
+    private static final String UUID_DES = "0000ffe3-0000-1000-8000-00805f9b34fb";
     //    private static final String UUID_SERVER = "d973f2e0-b19e-11e2-9e96-080020f29a66";
 //    private static final String UUID_READ = "d973f2e1-b19e-11e2-9e96-9e08000c9a66";
 //    private static final String UUID_WRITE = "d973f2e2-b19e-11e2-9e96-0800200c9a66";
@@ -54,6 +56,8 @@ public class SerialConnectBLE extends SerialConnect {
     private final ProgressDialog progressDialog;
     private BluetoothGatt bluetoothGatt;
     private BluetoothGattCharacteristic characteristicWrite;
+    private BluetoothGattDescriptor descriptor;
+    private int mtu = 20;
     private final ScanCallback scanCallback = new ScanCallback() {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
@@ -137,6 +141,10 @@ public class SerialConnectBLE extends SerialConnect {
                 gatt.setCharacteristicNotification(characteristicRead, true);
             }
 
+            if (characteristicWrite != null) {
+                descriptor = characteristicWrite.getDescriptor(UUID.fromString(UUID_DES));
+            }
+
             if (characteristicWrite != null)
                 gatt.setCharacteristicNotification(characteristicWrite, true);
         }
@@ -155,9 +163,17 @@ public class SerialConnectBLE extends SerialConnect {
 ////            onSendData(content, status == BluetoothGatt.GATT_SUCCESS);
 //            Log.e("---------onWrite:" + content);
             if (index >= 0) {
-                index += 20;
+                index += mtu;
                 sendData(bytes, index);
             }
+        }
+
+        @Override
+        public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
+            super.onDescriptorWrite(gatt, descriptor, status);
+            Log.d("-----------------------onDescriptorWrite：" + index);
+            if (index == 0)
+                sendData(bytes, index);
         }
     };
 
@@ -207,12 +223,32 @@ public class SerialConnectBLE extends SerialConnect {
     byte[] bytes;
 
     @Override
-    boolean writeAndFlushNoDelay(byte[] bytes) {
+    public boolean writeAndFlush(String commend) {
+        if (descriptor != null) {
+            descriptor.setValue("data".getBytes());
+        }
+        return super.writeAndFlush(commend);
+    }
+
+    @Override
+    public void writeFile(File file) {
+        if (descriptor != null) {
+            descriptor.setValue("file".getBytes());
+        }
+        super.writeFile(file);
+    }
+
+    @Override
+    public boolean writeBytes(byte[] bytes) {
         if (characteristicWrite == null || bluetoothGatt == null) return false;
         if (index < 0) {
             this.bytes = bytes;
             index = 0;
-            sendData(bytes, index);
+            if (descriptor != null) {
+                bluetoothGatt.writeDescriptor(descriptor);
+            } else {
+                sendData(bytes, index);
+            }
             return true;
         } else {
             return false;
@@ -222,7 +258,7 @@ public class SerialConnectBLE extends SerialConnect {
     private void sendData(byte[] bytes, int offset) {
         if (characteristicWrite == null || bluetoothGatt == null) return;
 
-        int end = Math.min(offset + 20, bytes.length);
+        int end = Math.min(offset + mtu, bytes.length);
         if (end >= bytes.length)
             index = -1;
         characteristicWrite.setValue(Arrays.copyOfRange(bytes, offset, end));

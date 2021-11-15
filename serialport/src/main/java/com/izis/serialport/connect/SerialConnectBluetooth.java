@@ -246,7 +246,7 @@ public class SerialConnectBluetooth extends SerialConnect {
     }
 
     @Override
-    boolean writeAndFlushNoDelay(byte[] bytes) {
+    public boolean writeBytes(byte[] bytes) {
         return connectThread != null && connectThread.writeAndFlush(bytes);
     }
 

@@ -147,8 +147,13 @@ public class SerialConnectService extends SerialConnect {
     }
 
     @Override
-    boolean writeAndFlushNoDelay(byte[] bytes) {
-        return true;
+    public boolean writeBytes(byte[] bytes) {
+        try {
+            return serialService.writeBytes(bytes);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     private ISerialService serialService;
