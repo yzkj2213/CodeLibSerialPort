@@ -51,7 +51,6 @@ public class SerialConnectService extends SerialConnect {
     //发送指令失败，通知前台, 可能是服务没连接，也可能是服务异常死亡
     private void noticeFront() {
         Log.e("发送指令失败，通知前台，会回调onConnectFail方法, 可能是服务没连接，也可能是服务异常死亡");
-        close();
         onConnectFailNoReConnect();
     }
 
