@@ -9,6 +9,7 @@ import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
+import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
@@ -31,6 +32,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.izis.serialport.R;
+import com.izis.serialport.util.FileUtil;
 import com.izis.serialport.util.Log;
 
 import java.io.File;
@@ -46,10 +48,7 @@ public class SerialConnectBLE extends SerialConnect {
     private static final String UUID_SERVER = "0000ffe0-0000-1000-8000-00805f9b34fb";
     private static final String UUID_READ = "0000ffe1-0000-1000-8000-00805f9b34fb";
     private static final String UUID_WRITE = "0000ffe2-0000-1000-8000-00805f9b34fb";
-    private static final String UUID_DES = "0000ffe3-0000-1000-8000-00805f9b34fb";
-    //    private static final String UUID_SERVER = "d973f2e0-b19e-11e2-9e96-080020f29a66";
-//    private static final String UUID_READ = "d973f2e1-b19e-11e2-9e96-9e08000c9a66";
-//    private static final String UUID_WRITE = "d973f2e2-b19e-11e2-9e96-0800200c9a66";
+    private static final String UUID_CCCD = "00002902-0000-1000-8000-00805f9b34fb";
     private final FragmentActivity activity;
     private final BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
     private final List<Device> searchDevices = new ArrayList<>();
@@ -57,7 +56,7 @@ public class SerialConnectBLE extends SerialConnect {
     private BluetoothGatt bluetoothGatt;
     private BluetoothGattCharacteristic characteristicWrite;
     private BluetoothGattDescriptor descriptor;
-    private int mtu = 20;
+    private int mtu = 512 - 3;
     private final ScanCallback scanCallback = new ScanCallback() {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
@@ -89,11 +88,7 @@ public class SerialConnectBLE extends SerialConnect {
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             super.onConnectionStateChange(gatt, status, newState);
             Log.d("------------------onConnectionStateChange: " + status + " " + newState);
-//            if (status == BluetoothGatt.GATT_SUCCESS && newState == BluetoothProfile.STATE_CONNECTED) {//蓝牙连接成功
-//                boolean b = gatt.requestMtu(512);
-//                Log.d("requestMtu: " + b);
-//            }
-            gatt.discoverServices();
+            gatt.discoverServices();//5C:C3:36:00:37:64
             switch (newState) {
                 case BluetoothProfile.STATE_CONNECTED:
                     closeConnectUI();
@@ -101,6 +96,7 @@ public class SerialConnectBLE extends SerialConnect {
                     break;
                 case BluetoothProfile.STATE_DISCONNECTED:
                     closeConnectUI();
+                    close();
                     onConnectFailNoReConnect();
                     break;
             }
@@ -111,7 +107,7 @@ public class SerialConnectBLE extends SerialConnect {
             super.onMtuChanged(gatt, mtu, status);
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 Log.i("request mtu 成功，约定后的MTU值为：" + mtu);
-                gatt.discoverServices();
+                SerialConnectBLE.this.mtu = mtu - 3;
             } else {
                 Log.e("request mtu 失败");
             }
@@ -122,27 +118,23 @@ public class SerialConnectBLE extends SerialConnect {
             super.onServicesDiscovered(gatt, status);
             //服务发现成功后，我们就可以进行数据相关的操作了，比如写入数据、开启notify等等
             Log.d("------------------onServicesDiscovered: " + gatt.getServices().size() + "个service");
-            for (BluetoothGattService service : gatt.getServices()) {
-                System.out.println("______________________");
-                System.out.println(service.getUuid());
-                for (BluetoothGattCharacteristic characteristic : service.getCharacteristics()) {
-                    System.out.println(characteristic.getUuid());
-                }
-            }
+
+            gatt.requestMtu(512);
+
             BluetoothGattService service = gatt.getService(UUID.fromString(UUID_SERVER));
-            BluetoothGattCharacteristic characteristicRead = service.getCharacteristic(UUID.fromString(UUID_READ));
+//            BluetoothGattCharacteristic characteristicRead = service.getCharacteristic(UUID.fromString(UUID_READ));
             characteristicWrite = service.getCharacteristic(UUID.fromString(UUID_WRITE));
 
-            if (characteristicRead != null) {
-                for (BluetoothGattDescriptor descriptor : characteristicRead.getDescriptors()) {
-                    descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-                    gatt.writeDescriptor(descriptor);
-                }
-                gatt.setCharacteristicNotification(characteristicRead, true);
-            }
+//            if (characteristicRead != null) {
+//                for (BluetoothGattDescriptor descriptor : characteristicRead.getDescriptors()) {
+//                    descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+//                    gatt.writeDescriptor(descriptor);
+//                }
+//                gatt.setCharacteristicNotification(characteristicRead, true);
+//            }
 
             if (characteristicWrite != null) {
-                descriptor = characteristicWrite.getDescriptor(UUID.fromString(UUID_DES));
+                descriptor = characteristicWrite.getDescriptor(UUID.fromString(UUID_CCCD));
             }
 
             if (characteristicWrite != null)
@@ -159,9 +151,6 @@ public class SerialConnectBLE extends SerialConnect {
         @Override
         public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             super.onCharacteristicWrite(gatt, characteristic, status);
-//            String content = characteristic.getStringValue(0);
-////            onSendData(content, status == BluetoothGatt.GATT_SUCCESS);
-//            Log.e("---------onWrite:" + content);
             if (index >= 0) {
                 index += mtu;
                 sendData(bytes, index);
@@ -171,7 +160,6 @@ public class SerialConnectBLE extends SerialConnect {
         @Override
         public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
             super.onDescriptorWrite(gatt, descriptor, status);
-            Log.d("-----------------------onDescriptorWrite：" + index);
             if (index == 0)
                 sendData(bytes, index);
         }
@@ -206,15 +194,8 @@ public class SerialConnectBLE extends SerialConnect {
 
     @Override
     void disConnect() {
-//        try {
-//            activity.unregisterReceiver(searchReceiver);
-//        } catch (Exception e) {
-//            //有可能没有注册
-//        }
         stopScan();
         closeSearchUI();
-//        if (connectThread != null)
-//            connectThread.cancel();
         bluetoothGatt.disconnect();
         bluetoothGatt.close();
     }
@@ -235,12 +216,23 @@ public class SerialConnectBLE extends SerialConnect {
         if (descriptor != null) {
             descriptor.setValue("file".getBytes());
         }
-        super.writeFile(file);
+        Log.d("更新文件，验证串口连接是否正常");
+        if (isConnected()) {
+            Log.d("更新文件, 串口连接正常，准备写入");
+            byte[] data = FileUtil.getBytes(file);
+            Log.d("更新文件，文件长度：" + (data == null ? 0 : data.length));
+            if (data != null) {
+                writeBytes(data);
+            }
+        } else {
+            Log.e("棋盘未连接");
+        }
     }
 
     @Override
     public boolean writeBytes(byte[] bytes) {
-        if (characteristicWrite == null || bluetoothGatt == null) return false;
+        if (characteristicWrite == null || bluetoothGatt == null || bytes == null || bytes.length == 0)
+            return false;
         if (index < 0) {
             this.bytes = bytes;
             index = 0;
@@ -256,14 +248,24 @@ public class SerialConnectBLE extends SerialConnect {
     }
 
     private void sendData(byte[] bytes, int offset) {
-        if (characteristicWrite == null || bluetoothGatt == null) return;
+        if (characteristicWrite == null || bluetoothGatt == null || bytes == null || bytes.length == 0)
+            return;
 
         int end = Math.min(offset + mtu, bytes.length);
         if (end >= bytes.length)
             index = -1;
         characteristicWrite.setValue(Arrays.copyOfRange(bytes, offset, end));
         bluetoothGatt.writeCharacteristic(characteristicWrite);
+
+        Log.d(">>>>>>>>>写入进度>>>>>>>>>: " + end * 100.0 / bytes.length + "%");
     }
+
+//    @Override
+//    public boolean isConnected() {
+//        BluetoothManager bluetoothManager = (BluetoothManager) activity.getSystemService(Context.BLUETOOTH_SERVICE);
+//        return bluetoothManager != null && bluetoothGatt.getDevice() != null
+//                && bluetoothManager.getConnectionState(bluetoothGatt.getDevice(), 1) == BluetoothProfile.STATE_CONNECTED;
+//    }
 
     private void requestBlueTooth() {
         PermissionsFragment.getInstance(activity)
