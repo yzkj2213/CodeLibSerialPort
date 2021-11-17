@@ -16,6 +16,8 @@ import java.io.File;
 import java.util.LinkedList;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -50,6 +52,7 @@ public abstract class SerialConnect {
     private int connectNumMax = 3;//最大重连次数
     private String lastCommend = "";//最后一条指令
     private long lastSendTime = 0;//最后一条指令的发送时间
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     public SerialConnect(Context context) {
         this.context = context;
@@ -60,10 +63,38 @@ public abstract class SerialConnect {
     }
 
     /**
+     * 设置指令最小延迟间隔
+     */
+    public void setMinDelay(int time) {
+        ProtocolUtil.minDelay = time;
+    }
+
+    /**
+     * 设置需要多倍延迟指令的延迟倍率
+     */
+    public void setDelayTimes(int times) {
+        ProtocolUtil.delayTimes = times;
+    }
+
+    /**
+     * 添加需要验证响应的指令
+     */
+    public void addResponseCommend(String key, String value) {
+        ProtocolUtil.responseMap.put(key, value);
+    }
+
+    /**
+     * 设置添加需要多倍延迟的指令
+     */
+    public void addDelayCommend(String commend) {
+        ProtocolUtil.delayList.add(commend);
+    }
+
+    /**
      * 打开连接
      */
     public synchronized void open() {
-        if (connectState == ConnectState.ConnectIng) return;
+        if (connectState != ConnectState.DisConnect) return;
         connectState = ConnectState.ConnectIng;
         connectNum++;
 
@@ -71,10 +102,17 @@ public abstract class SerialConnect {
     }
 
     /**
-     * 关闭连接
+     * 关闭连接， 默认清除缓存指令
      */
     public void close() {
+        close(true);
+    }
+
+    public void close(boolean cleanCacheCommend) {
         connectState = ConnectState.DisConnect;
+        //主动断开时清除缓存指令
+        if (cleanCacheCommend)
+            clearCommend();
 
         disConnect();
     }
@@ -95,7 +133,7 @@ public abstract class SerialConnect {
      * @param commend 数据
      * @return 写入是否成功
      */
-    public synchronized boolean writeAndFlush(String commend) {
+    public boolean writeAndFlush(String commend) {
         if (TextUtils.isEmpty(commend)) {
             onSendData(commend, false);
             return false;
@@ -115,7 +153,7 @@ public abstract class SerialConnect {
         lastSendTime = System.currentTimeMillis();
         lastCommend = commend;
 
-        boolean result = writeAndFlushNoDelay(commend.getBytes());
+        boolean result = writeBytes(commend.getBytes());
         onSendData(commend, result);
 
         return result;
@@ -125,24 +163,28 @@ public abstract class SerialConnect {
      * 写文件，
      */
     public void writeFile(File file) {
-        Log.d("更新文件，验证串口连接是否正常");
-        if (isConnected()) {
-            Log.d("更新文件, 串口连接正常，准备写入");
-            byte[] data = FileUtil.getBytes(file);
-            Log.d("更新文件，文件长度：" + (data == null ? 0 : data.length));
-            if (data != null) {
-                int max = data.length / 1024 + 1;
-                for (int i = 0; i < max; i++) {
-                    int length = Math.min(data.length - i * 1024, 1024);
-                    byte[] msg = new byte[length];
-                    System.arraycopy(data, i * 1024, msg, 0, length);
-                    writeAndFlushNoDelay(msg);
+        executorService.execute(() -> {
+            Log.d("更新文件，验证串口连接是否正常");
+            if (isConnected()) {
+                Log.d("更新文件, 串口连接正常，准备写入");
+                byte[] data = FileUtil.getBytes(file);
+                Log.d("更新文件，文件长度：" + (data == null ? 0 : data.length));
+                if (data != null) {
+                    writeBytes(data);
+//                    int max = data.length / 1024 + 1;
+//                    for (int i = 0; i < max; i++) {
+//                        int length = Math.min(data.length - i * 1024, 1024);
+//                        byte[] msg = new byte[length];
+//                        System.arraycopy(data, i * 1024, msg, 0, length);
+//                        Log.d("更新文件，进度：" + (i + 1) * 100.0 / max + "%");
+//                        writeBytes(msg);
+//                    }
+                    Log.d("更新文件，写入完毕");
                 }
-                Log.d("更新文件，写入完毕");
+            } else {
+                Log.e("棋盘未连接");
             }
-        } else {
-            Log.e("棋盘未连接");
-        }
+        });
     }
 
     /**
@@ -151,7 +193,7 @@ public abstract class SerialConnect {
      * @param bytes 数据
      * @return 写入是否成功
      */
-    abstract boolean writeAndFlushNoDelay(byte[] bytes);
+    public abstract boolean writeBytes(byte[] bytes);
 
     void sleep() {
         try {
@@ -220,7 +262,7 @@ public abstract class SerialConnect {
             public void run() {
                 send();
             }
-        }, 200);
+        }, 500);
     }
 
     private synchronized void loopNext() {
@@ -349,7 +391,7 @@ public abstract class SerialConnect {
         }
     }
 
-    void onConnectFailNoReConnect(){
+    void onConnectFailNoReConnect() {
         connectState = ConnectState.DisConnect;
         //重连失败后回调通知
         if (connectListener != null)
@@ -366,7 +408,7 @@ public abstract class SerialConnect {
             public void run() {
                 open();
             }
-        }, 1200);
+        }, 1500);
 
         if (connectListener != null)
             main.post(() -> connectListener.onConnectError());

@@ -57,7 +57,8 @@ class ConnectThread implements Runnable {
         try {
             // Get a BluetoothSocket to connect with the given BluetoothDevice.
             // MY_UUID is the app's UUID string, also used in the server code.
-            tmp = device.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
+//            tmp = device.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
+            tmp = device.createInsecureRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
 //            tmp = device.createRfcommSocketToServiceRecord(UUID.randomUUID());
 //            tmp = device.createInsecureRfcommSocketToServiceRecord(UUID.randomUUID());
 //            tmp = device.createInsecureRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
@@ -125,7 +126,6 @@ class ConnectThread implements Runnable {
                 byte[] buffer = new byte[1024];
                 if (inputStream == null) return;
                 int size = inputStream.read(buffer);
-                System.out.println(size);
                 if (size > 0) {
                     byte[] readBytes = new byte[size];
                     System.arraycopy(buffer, 0, readBytes, 0, size);
@@ -135,7 +135,8 @@ class ConnectThread implements Runnable {
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                serialConnectBluetooth.onConnectError(bluetoothDevice.getName());
+                serialConnectBluetooth.disConnect();
+                serialConnectBluetooth.onConnectFailNoReConnect();
                 break;
             }
         }
@@ -247,7 +248,7 @@ public class SerialConnectBluetooth extends SerialConnect {
     }
 
     @Override
-    boolean writeAndFlushNoDelay(byte[] bytes) {
+    public boolean writeBytes(byte[] bytes) {
         return connectThread != null && connectThread.writeAndFlush(bytes);
     }
 

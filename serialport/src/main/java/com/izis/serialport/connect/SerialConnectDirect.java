@@ -72,7 +72,7 @@ public class SerialConnectDirect extends SerialConnect {
     }
 
     @Override
-    boolean writeAndFlushNoDelay(byte[] bytes) {
+    public boolean writeBytes(byte[] bytes) {
         try {
             mOutputStream.write(bytes);
             mOutputStream.flush();

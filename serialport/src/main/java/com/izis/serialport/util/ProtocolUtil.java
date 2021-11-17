@@ -19,12 +19,14 @@ public class ProtocolUtil {
         put("~CTS","UDS");
         put("~LED","LOS");
         put("~HOT","HSM");
+        put("~BOD","GBS");
         //----亮多个灯
         put("~SAL","ALS");
         put("~SAM","ALS");
         put("~SAW","ALS");
         put("~SAU","ALS");
         put("~SAN","ALS");
+        put("~SAR","ALS");
     }};
 
     /**

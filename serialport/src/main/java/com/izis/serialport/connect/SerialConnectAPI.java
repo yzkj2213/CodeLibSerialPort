@@ -183,7 +183,7 @@ public class SerialConnectAPI extends SerialConnect {
     }
 
     @Override
-    boolean writeAndFlushNoDelay(byte[] bytes) {
+    public boolean writeBytes(byte[] bytes) {
         if (usbDeviceConnection != null && usbEndpointOut != null) {
             int i = usbDeviceConnection.bulkTransfer(usbEndpointOut, bytes, bytes.length, 80);
             return i > 0;

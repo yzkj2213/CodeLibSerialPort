@@ -46,7 +46,7 @@ public class SerialConnectJNI extends SerialConnect {
         String[] entryValues = mSerialPortFinder.getAllDevicesPath();
         if (entryValues == null) {
             Log.w("没有找到相关设备");
-            onConnectFail();
+            onConnectFailNoReConnect();
             return;
         }
         Log.i("查找到设备：" + Arrays.toString(entryValues));
@@ -60,7 +60,7 @@ public class SerialConnectJNI extends SerialConnect {
         }
         if (device.isEmpty()) {
             Log.w("没有找到相关设备");
-            onConnectFail();
+            onConnectFailNoReConnect();
             return;
         }
 
@@ -83,7 +83,7 @@ public class SerialConnectJNI extends SerialConnect {
             }.start();
         } catch (Exception e) {
             Log.e("打开串口失败");
-            onConnectFail();
+            onConnectFailNoReConnect();
         }
     }
 
@@ -102,7 +102,7 @@ public class SerialConnectJNI extends SerialConnect {
     }
 
     @Override
-    boolean writeAndFlushNoDelay(byte[] bytes) {
+    public boolean writeBytes(byte[] bytes) {
         try {
             mOutputStream.write(bytes);
             mOutputStream.flush();
