@@ -170,14 +170,15 @@ public abstract class SerialConnect {
                 byte[] data = FileUtil.getBytes(file);
                 Log.d("更新文件，文件长度：" + (data == null ? 0 : data.length));
                 if (data != null) {
-                    int max = data.length / 1024 + 1;
-                    for (int i = 0; i < max; i++) {
-                        int length = Math.min(data.length - i * 1024, 1024);
-                        byte[] msg = new byte[length];
-                        System.arraycopy(data, i * 1024, msg, 0, length);
-                        Log.d("更新文件，进度：" + (i + 1) * 100.0 / max + "%");
-                        writeBytes(msg);
-                    }
+                    writeBytes(data);
+//                    int max = data.length / 1024 + 1;
+//                    for (int i = 0; i < max; i++) {
+//                        int length = Math.min(data.length - i * 1024, 1024);
+//                        byte[] msg = new byte[length];
+//                        System.arraycopy(data, i * 1024, msg, 0, length);
+//                        Log.d("更新文件，进度：" + (i + 1) * 100.0 / max + "%");
+//                        writeBytes(msg);
+//                    }
                     Log.d("更新文件，写入完毕");
                 }
             } else {
