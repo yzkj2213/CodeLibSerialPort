@@ -45,9 +45,5 @@ class MainActivity : AppCompatActivity() {
         findViewById<View>(R.id.btnRGC).setOnClickListener {
             connect.writeAndFlush("~RGC#")
         }
-
-        findViewById<View>(R.id.btnServerBluetooth).setOnClickListener {
-            startActivity(Intent(this, ServerBluetoothActivity::class.java))
-        }
     }
 }

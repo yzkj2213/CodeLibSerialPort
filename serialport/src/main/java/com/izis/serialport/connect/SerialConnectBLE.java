@@ -9,7 +9,6 @@ import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
-import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
@@ -23,32 +22,34 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.izis.serialport.R;
 import com.izis.serialport.util.FileUtil;
 import com.izis.serialport.util.Log;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
 
 
 public class SerialConnectBLE extends SerialConnect {
-    private static final String UUID_SERVER = "0000ffe0-0000-1000-8000-00805f9b34fb";
-    private static final String UUID_READ = "0000ffe1-0000-1000-8000-00805f9b34fb";
-    private static final String UUID_WRITE = "0000ffe2-0000-1000-8000-00805f9b34fb";
+    private static final String UUID_SERVER = "0000fff0-0000-1000-8000-00805f9b34fb";
+    private static final String UUID_READ = "0000fff1-0000-1000-8000-00805f9b34fb";
+    private static final String UUID_WRITE = "0000fff2-0000-1000-8000-00805f9b34fb";
     private static final String UUID_CCCD = "00002902-0000-1000-8000-00805f9b34fb";
+    //00001800-0000-1000-8000-00805f9b34fb
+    //00001801-0000-1000-8000-00805f9b34fb
+    //0000fff0-0000-1000-8000-00805f9b34fb
+    //0000180a-0000-1000-8000-00805f9b34fb
     private final FragmentActivity activity;
     private final BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
     private final List<Device> searchDevices = new ArrayList<>();
@@ -121,17 +122,29 @@ public class SerialConnectBLE extends SerialConnect {
 
             gatt.requestMtu(512);
 
+            gatt.getServices().forEach(bluetoothGattService -> {
+                Log.d("---------------------------Service:");
+                Log.d(bluetoothGattService.getUuid().toString());
+                bluetoothGattService.getCharacteristics().forEach(bluetoothGattCharacteristic -> {
+                    Log.d(">>>>>Characteristic:");
+                    Log.d(bluetoothGattCharacteristic.getUuid().toString());
+                    bluetoothGattCharacteristic.getDescriptors().forEach(bluetoothGattDescriptor -> {
+                        Log.d(">>Descriptor:");
+                        Log.d(bluetoothGattDescriptor.getUuid().toString());
+                    });
+                });
+            });
             BluetoothGattService service = gatt.getService(UUID.fromString(UUID_SERVER));
-//            BluetoothGattCharacteristic characteristicRead = service.getCharacteristic(UUID.fromString(UUID_READ));
+            BluetoothGattCharacteristic characteristicRead = service.getCharacteristic(UUID.fromString(UUID_READ));
             characteristicWrite = service.getCharacteristic(UUID.fromString(UUID_WRITE));
 
-//            if (characteristicRead != null) {
+            if (characteristicRead != null) {
 //                for (BluetoothGattDescriptor descriptor : characteristicRead.getDescriptors()) {
 //                    descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
 //                    gatt.writeDescriptor(descriptor);
 //                }
-//                gatt.setCharacteristicNotification(characteristicRead, true);
-//            }
+                gatt.setCharacteristicNotification(characteristicRead, true);
+            }
 
             if (characteristicWrite != null) {
                 descriptor = characteristicWrite.getDescriptor(UUID.fromString(UUID_CCCD));
@@ -290,16 +303,16 @@ public class SerialConnectBLE extends SerialConnect {
      * 获取设备
      */
     private void getDevice() {
-//        Set<BluetoothDevice> bondedDevices = bluetoothAdapter.getBondedDevices();
-//
-//        Log.i("蓝牙已打开，发现已配对设备" + bondedDevices.size() + "台：");
-//        for (BluetoothDevice bondedDevice : bondedDevices) {
-//            Device device = new Device();
-//            device.bluetoothDevice = bondedDevice;
-//            device.type = 1;
-//            if (!searchDevices.contains(device))
-//                searchDevices.add(device);
-//        }
+        Set<BluetoothDevice> bondedDevices = bluetoothAdapter.getBondedDevices();
+
+        Log.i("蓝牙已打开，发现已配对设备" + bondedDevices.size() + "台：");
+        for (BluetoothDevice bondedDevice : bondedDevices) {
+            Device device = new Device();
+            device.bluetoothDevice = bondedDevice;
+            device.type = 1;
+            if (!searchDevices.contains(device))
+                searchDevices.add(device);
+        }
 
 
         //请求位置权限并查找周围蓝牙设备

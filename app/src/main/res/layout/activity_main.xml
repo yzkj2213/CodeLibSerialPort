@@ -35,16 +35,6 @@
         app:layout_constraintTop_toBottomOf="@+id/btnClose" />
 
     <Button
-        android:id="@+id/btnServerBluetooth"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        android:text="蓝牙服务器"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <Button
         android:id="@+id/btnWriteSAL"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
