@@ -23,14 +23,17 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.izis.serialport.R;
 import com.izis.serialport.util.Log;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -86,7 +89,6 @@ public class SerialConnectBLE extends SerialConnect {
             switch (newState) {
                 case BluetoothProfile.STATE_CONNECTED:
                     closeConnectUI();
-                    onConnectSuccess(gatt.getDevice().getName());
                     break;
                 case BluetoothProfile.STATE_DISCONNECTED:
                     closeConnectUI();
@@ -137,6 +139,17 @@ public class SerialConnectBLE extends SerialConnect {
 //                    gatt.writeDescriptor(descriptor);
 //                }
                 gatt.setCharacteristicNotification(characteristicRead, true);
+            }
+
+            if (characteristicRead != null && characteristicWrite != null) {
+                new Timer().schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        onConnectSuccess(gatt.getDevice().getName());
+                    }
+                }, 500);
+            } else {
+                onConnectFailNoReConnect();
             }
         }
 
