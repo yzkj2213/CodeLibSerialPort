@@ -243,10 +243,10 @@ public class SerialConnectBLE extends SerialConnect {
         Log.d(">>>>>>>>>写入进度>>>>>>>>>: " + end * 100.0 / bytes.length + "%");
     }
 
-    @Override
-    public boolean isConnected() {
-        return bluetoothAdapter != null && bluetoothAdapter.getProfileConnectionState(BluetoothHeadset.HEADSET) == BluetoothHeadset.STATE_CONNECTED;
-    }
+//    @Override
+//    public boolean isConnected() {
+//        return bluetoothAdapter != null && bluetoothAdapter.getProfileConnectionState(BluetoothHeadset.HEADSET) == BluetoothHeadset.STATE_CONNECTED;//错误
+//    }
 
     private void requestBlueTooth() {
         PermissionsFragment.getInstance(activity)
