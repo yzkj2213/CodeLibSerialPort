@@ -6,7 +6,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.hardware.usb.UsbManager;
 import android.os.Bundle;
+
 import com.izis.serialport.util.Log;
+
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
@@ -120,15 +122,24 @@ public class SerialConnectPl2303 extends SerialConnect {
 
     @Override
     public boolean writeBytes(byte[] bytes) {
+        boolean result;
         if (!pl2303LinkExist()) {
-            return false;
+            result = false;
+        } else {
+            if (mSerialMulti != null) {
+                int i = mSerialMulti.PL2303Write(deviceIndex, bytes);
+                result = i > 0;
+            } else {
+                result = false;
+            }
         }
 
-        if (mSerialMulti != null) {
-            int i = mSerialMulti.PL2303Write(deviceIndex, bytes);
-            return i > 0;
+        if (!result) {
+            disConnect();
+            onConnectError("PL2303");
         }
-        return false;
+
+        return result;
     }
 
     private void requestData() {

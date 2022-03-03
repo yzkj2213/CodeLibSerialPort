@@ -109,6 +109,9 @@ public class SerialConnectJNI extends SerialConnect {
             return true;
         } catch (Exception e) {
             e.printStackTrace();
+
+            disConnect();
+            onConnectError("JNI");
             return false;
         }
     }

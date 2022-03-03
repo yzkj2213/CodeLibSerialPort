@@ -37,7 +37,7 @@ public class SerialConnectService extends SerialConnect {
     }
 
     @Override
-    public synchronized boolean writeAndFlush(String commend) {
+    public boolean writeAndFlush(String commend) {
         try {
             serialService.writeAndFlush(commend);
             return true;

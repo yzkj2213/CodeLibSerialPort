@@ -79,6 +79,9 @@ public class SerialConnectDirect extends SerialConnect {
             return true;
         } catch (Exception e) {
             e.printStackTrace();
+
+            disConnect();
+            onConnectError("DIRECT");
             return false;
         }
     }

@@ -134,7 +134,7 @@ public abstract class SerialConnect {
      * @return 写入是否成功
      */
     public boolean writeAndFlush(String commend) {
-        if (TextUtils.isEmpty(commend)) {
+        if (TextUtils.isEmpty(commend) || !isConnected()) {
             onSendData(commend, false);
             return false;
         }
@@ -176,7 +176,9 @@ public abstract class SerialConnect {
                         byte[] msg = new byte[length];
                         System.arraycopy(data, i * 1024, msg, 0, length);
                         Log.d("更新文件，进度：" + (i + 1) * 100.0 / max + "%");
-                        writeBytes(msg);
+                        if (isConnected()) {
+                            writeBytes(msg);
+                        }
                     }
                     Log.d("更新文件，写入完毕");
                 }
