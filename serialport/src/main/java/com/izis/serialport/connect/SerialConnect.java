@@ -153,6 +153,10 @@ public abstract class SerialConnect {
         lastSendTime = System.currentTimeMillis();
         lastCommend = commend;
 
+        if (TextUtils.isEmpty(commend) || !isConnected()) {
+            onSendData(commend, false);
+            return false;
+        }
         boolean result = writeBytes(commend.getBytes());
         onSendData(commend, result);
 

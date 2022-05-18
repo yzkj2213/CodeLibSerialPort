@@ -5,6 +5,8 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import com.izis.serialport.connect.SerialConnectBLE
+import com.izis.serialport.connect.SerialConnectJNI
+import com.izis.serialport.connect.SerialConnectPl2303
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
@@ -13,7 +15,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
 
-        val connect = SerialConnectBLE(this)
+        val connect = SerialConnectPl2303(this)
         findViewById<View>(R.id.btnOpen).setOnClickListener {
             connect.open()
         }
