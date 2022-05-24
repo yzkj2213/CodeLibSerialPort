@@ -163,7 +163,8 @@ public class SerialConnectService extends SerialConnect {
             serialService = ISerialService.Stub.asInterface(service);
             try {
                 serialService.registerListener(listener);
-                onConnectSuccess("serial_service");
+                //只是连接服务成功，不能算是真正连接设备成功
+//                onConnectSuccess("serial_service");
             } catch (Exception e) {
                 e.printStackTrace();
             }
