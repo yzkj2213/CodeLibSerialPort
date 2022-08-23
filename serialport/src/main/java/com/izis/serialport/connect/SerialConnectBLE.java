@@ -16,6 +16,7 @@ import android.bluetooth.le.ScanResult;
 import android.content.Context;
 import android.content.Intent;
 import android.location.LocationManager;
+import android.os.Build;
 import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,6 +26,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -41,7 +43,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
 
-
+@RequiresApi(api = Build.VERSION_CODES.N)
 public class SerialConnectBLE extends SerialConnect {
     private static final String UUID_SERVER = "0000fff0-0000-1000-8000-00805f9b34fb";
     private static final String UUID_READ = "0000fff1-0000-1000-8000-00805f9b34fb";
