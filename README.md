@@ -8,7 +8,7 @@
   - [接收数据监听](#接收数据监听)
   - [发送数据监听](#发送数据监听)
   - [自定义有响应和需要延迟的指令](#自定义有响应和需要延迟的指令)
-- [底层协议（常用部分）](底层协议（常用部分）)
+- [底层协议（常用部分）](#底层协议（常用部分）)
   - [下发指令](#下发指令)
   - [上发指令](#上发指令)
 
@@ -45,7 +45,7 @@
         }
     }
 
-    implementation 'com.github.lunxinfeng:CodeLibSerialPort:1.0.0'
+    implementation 'com.github.yzkj2213:CodeLibSerialPort:1.0.0'
 ```
 
 ```java
