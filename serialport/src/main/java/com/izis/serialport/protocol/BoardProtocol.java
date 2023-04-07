@@ -51,13 +51,6 @@ public class BoardProtocol {
         }
 
         /**
-         * 断开连接
-         */
-        public static String disConnect() {
-            return "~CAL#";
-        }
-
-        /**
          * 底层发滴滴警告声音
          */
         public static String warning() {

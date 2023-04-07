@@ -30,7 +30,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="写入STA"
+        android:text="请求全盘数据"
         app:layout_constraintStart_toStartOf="@+id/btnClose"
         app:layout_constraintTop_toBottomOf="@+id/btnClose" />
 
@@ -39,7 +39,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="SAL"
+        android:text="亮多个灯"
         app:layout_constraintStart_toStartOf="@+id/btnWriteSTA"
         app:layout_constraintTop_toBottomOf="@+id/btnWriteSTA" />
 
@@ -48,7 +48,26 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="RGC"
+        android:text="关闭所有灯"
         app:layout_constraintStart_toStartOf="@+id/btnWriteSAL"
         app:layout_constraintTop_toBottomOf="@+id/btnWriteSAL" />
+
+    <TextView
+        android:id="@+id/textViewResponse"
+        android:layout_width="0dp"
+        android:layout_height="150dp"
+        android:layout_marginBottom="8dp"
+        android:text="Response"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/btnSingleLamp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="亮单个灯"
+        app:layout_constraintStart_toStartOf="@+id/btnRGC"
+        app:layout_constraintTop_toBottomOf="@+id/btnRGC" />
 </androidx.constraintlayout.widget.ConstraintLayout>
