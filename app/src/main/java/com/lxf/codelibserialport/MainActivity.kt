@@ -3,8 +3,6 @@ package com.lxf.codelibserialport
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
-import com.izis.serialport.connect.SerialConnectDirect
-import com.izis.serialport.connect.SerialConnectPl2303
 import com.izis.serialport.connect.SerialConnectService
 import java.util.*
 
@@ -24,13 +22,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         findViewById<View>(R.id.btnWriteSTA).setOnClickListener {
-//            connect.writeAndFlush("~TLO010,r255g000b000,1#")
-//            connect.writeAndFlush("~TLO010,r255g000b000,1#")
-////            connect.writeAndFlush("~STA#")
-//            connect.writeAndFlush("~RGC#")
-//            connect.writeAndFlush("~RGC#")
-//
-//            connect.writeAndFlush("~BOD19#")
             connect.writeAndFlush("~STA#")
         }
         findViewById<View>(R.id.btnWriteSAL).setOnClickListener {
