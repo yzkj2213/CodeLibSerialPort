@@ -1,12 +1,11 @@
 package com.lxf.codelibserialport
 
-import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
-import com.izis.serialport.connect.SerialConnectBLE
-import com.izis.serialport.connect.SerialConnectJNI
+import com.izis.serialport.connect.SerialConnectDirect
 import com.izis.serialport.connect.SerialConnectPl2303
+import com.izis.serialport.connect.SerialConnectService
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
@@ -15,7 +14,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
 
-        val connect = SerialConnectPl2303(this)
+        val connect = SerialConnectService(this)
         findViewById<View>(R.id.btnOpen).setOnClickListener {
             connect.open()
         }

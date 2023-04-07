@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.os.RemoteException;
+
 import com.example.lxf.laucher2.ISerialService;
 import com.example.lxf.laucher2.ISerialServiceListener;
 import com.izis.serialport.util.Log;
@@ -50,7 +51,7 @@ public class SerialConnectService extends SerialConnect {
 
     //发送指令失败，通知前台, 可能是服务没连接，也可能是服务异常死亡
     private void noticeFront() {
-        Log.e("发送指令失败，通知前台，会回调onConnectFail方法, 可能是服务没连接，也可能是服务异常死亡");
+        Log.e("发送指令失败，通知前台，会回调onConnectFailNoReConnect方法, 可能是服务没连接，也可能是服务异常死亡");
         onConnectFailNoReConnect();
     }
 
@@ -165,6 +166,22 @@ public class SerialConnectService extends SerialConnect {
                 serialService.registerListener(listener);
                 //只是连接服务成功，不能算是真正连接设备成功
 //                onConnectSuccess("serial_service");
+                try {
+                    service.linkToDeath(new IBinder.DeathRecipient() {
+                        @Override
+                        public void binderDied() {
+                            Log.w("监听到服务端死亡，进行重启服务");
+                            //服务端死亡
+                            service.unlinkToDeath(this, 0);
+
+                            connectState = ConnectState.DisConnect;
+                            open();
+                        }
+                    }, 0);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                    Log.e("监听服务死亡，发生异常");
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }

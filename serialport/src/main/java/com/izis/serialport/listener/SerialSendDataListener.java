@@ -1,6 +1,5 @@
 package com.izis.serialport.listener;
 
-import androidx.annotation.NonNull;
 
 public interface SerialSendDataListener {
     /**
@@ -8,5 +7,5 @@ public interface SerialSendDataListener {
      * @param data 发送的数据
      * @param result 发送是否成功
      */
-    void onSendData(@NonNull String data, boolean result);
+    void onSendData(String data, boolean result);
 }
