@@ -232,6 +232,8 @@ public abstract class SerialConnect {
      * @param commend 指令
      */
     public synchronized void addCommend(String commend) {
+        if(commend == null || commend.isEmpty()) return;
+
         commendList.add(commend);
         if (commendList.size() == 1) {
             send();
