@@ -42,7 +42,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         findViewById<View>(R.id.btnWriteSTA).setOnClickListener {
-            connect.writeAndFlush(BoardProtocol.Down.requestAllChess())
+            connect.addCommend(BoardProtocol.Down.requestAllChess())
         }
         findViewById<View>(R.id.btnWriteSAL).setOnClickListener {
             val list = arrayListOf<IntArray>()
@@ -54,7 +54,7 @@ class MainActivity : AppCompatActivity() {
                         (Random().nextInt(9) + 1)
                 })
             }
-            connect.writeAndFlush(
+            connect.addCommend(
                 BoardProtocol.Down.lampMultiple(
                     19,
                     list,
@@ -64,7 +64,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         findViewById<View>(R.id.btnSingleLamp).setOnClickListener {
-            connect.writeAndFlush(
+            connect.addCommend(
                 BoardProtocol.Down.lampPosition(
                     180,
                     Random().nextInt(2) + 1
@@ -73,7 +73,11 @@ class MainActivity : AppCompatActivity() {
         }
 
         findViewById<View>(R.id.btnRGC).setOnClickListener {
-            connect.writeAndFlush(BoardProtocol.Down.closeAllLamp())
+            connect.addCommend(BoardProtocol.Down.closeAllLamp())
+        }
+
+        findViewById<View>(R.id.btnEmpty).setOnClickListener {
+            connect.addCommend("")
         }
     }
 }

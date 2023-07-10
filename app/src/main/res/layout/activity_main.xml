@@ -70,4 +70,13 @@
         android:text="亮单个灯"
         app:layout_constraintStart_toStartOf="@+id/btnRGC"
         app:layout_constraintTop_toBottomOf="@+id/btnRGC" />
+
+    <Button
+        android:id="@+id/btnEmpty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="空字符串"
+        app:layout_constraintStart_toStartOf="@+id/btnSingleLamp"
+        app:layout_constraintTop_toBottomOf="@+id/btnSingleLamp" />
 </androidx.constraintlayout.widget.ConstraintLayout>

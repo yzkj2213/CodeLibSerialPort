@@ -67,6 +67,7 @@ public class SerialConnectService extends SerialConnect {
 
     @Override
     public synchronized void addCommend(String commend) {
+        if(commend == null || commend.isEmpty()) return;
         try {
             serialService.addCommend(commend);
         } catch (Exception e) {
