@@ -79,7 +79,7 @@ public class SerialConnectDirect extends SerialConnect {
             return true;
         } catch (Exception e) {
             e.printStackTrace();
-            ///直连的方式不触发重连，据说直连不存在断开的概念，如果异常导致重连可能存在两个连接互抢
+            ///直连的方式不触发重连，据说直连不存在断开的概念
 //            disConnect();
 //            onConnectError("DIRECT");
             return false;

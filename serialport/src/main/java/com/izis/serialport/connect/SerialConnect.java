@@ -309,8 +309,6 @@ public abstract class SerialConnect {
 
         readTemp = String.format("%s%s", readTemp, curReadData); // 得到最完整的读取池数据
 
-        Log.d("初步处理数据:" + readTemp);
-
         String totalCommands;
         //缓存中完整数据后的半截数据
         String tempRest;
