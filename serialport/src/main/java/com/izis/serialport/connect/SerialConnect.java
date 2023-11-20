@@ -145,7 +145,9 @@ public abstract class SerialConnect {
         long l = System.currentTimeMillis();
         if (l - lastSendTime < delayTime) {
             try {
-                Thread.sleep(delayTime - (l - lastSendTime));
+                long time = delayTime - (l - lastSendTime);
+                Log.d("writeAndFlush 等待：" + time + "\n" + l + "\n" + lastSendTime);
+                Thread.sleep(Math.min(300, time));
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -232,7 +234,9 @@ public abstract class SerialConnect {
      * @param commend 指令
      */
     public synchronized void addCommend(String commend) {
-        if(commend == null || commend.isEmpty()) return;
+        if (commend == null || commend.isEmpty()) {
+            return;
+        }
 
         commendList.add(commend);
         if (commendList.size() == 1) {
@@ -249,15 +253,18 @@ public abstract class SerialConnect {
 
     private void send() {
         String commend = getCommend();
-        if (commend == null || commend.isEmpty()) return;
+        if (commend == null || commend.isEmpty()) {
+            return;
+        }
 
         if (sendNum > sendNumMax) {
             loopNext();
             return;
         }
         boolean result = writeAndFlush(commend);
-        if (result)
+        if (result) {
             sendNum++;//写入成功才累加发送次数，如果棋盘断开，则一直尝试，直到棋盘连上或者清除缓存指令
+        }
         if (!hasResponse(commend)) {
             loopNext();
             return;

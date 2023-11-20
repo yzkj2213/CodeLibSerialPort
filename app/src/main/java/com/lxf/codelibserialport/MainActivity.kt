@@ -39,6 +39,7 @@ class MainActivity : AppCompatActivity() {
 
         findViewById<View>(R.id.btnClose).setOnClickListener {
             connect.close()
+
         }
 
         findViewById<View>(R.id.btnWriteSTA).setOnClickListener {
