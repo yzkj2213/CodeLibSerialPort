@@ -56,4 +56,5 @@ dependencies {
 //    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
     implementation files('libs/pl2303multilib.jar')
+    implementation files('libs/uniwinapi-v1.2-a133.jar')
 }

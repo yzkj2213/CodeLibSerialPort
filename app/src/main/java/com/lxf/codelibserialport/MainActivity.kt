@@ -6,6 +6,7 @@ import android.view.View
 import android.widget.TextView
 import android.widget.Toast
 import com.izis.serialport.connect.SerialConnectService
+import com.izis.serialport.device_id.OSInfo
 import com.izis.serialport.listener.SerialReceiveDataListener
 import com.izis.serialport.protocol.BoardProtocol
 import java.util.*
@@ -79,6 +80,11 @@ class MainActivity : AppCompatActivity() {
 
         findViewById<View>(R.id.btnEmpty).setOnClickListener {
             connect.addCommend("")
+        }
+
+        findViewById<View>(R.id.btnTime).setOnClickListener {
+            connect.addCommend("")
+            println(OSInfo.getDeviceId())
         }
     }
 }
