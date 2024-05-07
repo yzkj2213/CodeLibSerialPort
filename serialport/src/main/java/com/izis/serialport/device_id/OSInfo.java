@@ -1,12 +1,25 @@
 package com.izis.serialport.device_id;
 
 import android.os.Build;
+
 import com.android.uniwin.UniwinAPI;
+
 import java.net.NetworkInterface;
 import java.util.Collections;
 import java.util.List;
 
 public class OSInfo {
+
+    /**
+     * 是否是电子棋盘
+     */
+    public static Boolean isBoard() {
+        return isSZ() || isSZ_A133() || isDW() || isYS();
+    }
+
+    /**
+     * 获取电子棋盘的设备ID
+     */
     public static String getDeviceId() {
         if (isSZ_A133()) {
             return getCpuSerial();
