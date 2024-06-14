@@ -1,5 +1,6 @@
 package com.lxf.codelibserialport
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
@@ -85,6 +86,10 @@ class MainActivity : AppCompatActivity() {
         findViewById<View>(R.id.btnTime).setOnClickListener {
             connect.addCommend("")
             println(OSInfo.getDeviceId())
+        }
+
+        findViewById<View>(R.id.btnSecond).setOnClickListener {
+            startActivity(Intent(this, SecondActivity::class.java))
         }
     }
 }

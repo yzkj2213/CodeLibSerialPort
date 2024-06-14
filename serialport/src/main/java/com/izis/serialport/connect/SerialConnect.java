@@ -105,15 +105,32 @@ public abstract class SerialConnect {
      * 关闭连接， 默认清除缓存指令
      */
     public void close() {
-        close(true);
+        close(false);
     }
 
     public void close(boolean cleanCacheCommend) {
-        connectState = ConnectState.DisConnect;
         //主动断开时清除缓存指令
-        if (cleanCacheCommend)
+        if (cleanCacheCommend) {
             clearCommend();
+        }
 
+        long time = System.currentTimeMillis();
+        while (true) {
+            if (commendList.isEmpty()) {
+                break;
+            }
+
+            if (System.currentTimeMillis() - time > 1000) {
+                break;
+            }
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        clearCommend();
+        connectState = ConnectState.DisConnect;
         disConnect();
     }
 
@@ -444,7 +461,7 @@ public abstract class SerialConnect {
         if (result) {
             Log.i("写入指令：" + data);
         } else {
-            Log.w("写入指令失败：" + data);
+            Log.w("写入指令失败：" + data + "\t 连接状态：" + isConnected());
         }
         if (sendDataListener != null)
             main.post(() -> sendDataListener.onSendData(data, result));

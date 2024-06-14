@@ -89,4 +89,13 @@
         android:text="测试系统时间"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/btnSecond"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="测试onDestory"
+        app:layout_constraintEnd_toEndOf="@+id/btnTime"
+        app:layout_constraintTop_toBottomOf="@+id/btnTime" />
 </androidx.constraintlayout.widget.ConstraintLayout>

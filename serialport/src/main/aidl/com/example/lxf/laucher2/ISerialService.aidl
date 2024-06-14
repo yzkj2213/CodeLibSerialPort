@@ -12,6 +12,7 @@ interface ISerialService {
     void writeFile(String path);
     boolean writeBytes(in byte[] bytes);
     void clearCommend();
+    void close(boolean clearCacheCommend);
 
     void setConnectMaxNum(int num);
     void setSendMaxNum(int num);

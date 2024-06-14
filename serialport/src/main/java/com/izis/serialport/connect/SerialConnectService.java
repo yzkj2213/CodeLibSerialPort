@@ -49,6 +49,15 @@ public class SerialConnectService extends SerialConnect {
         return false;
     }
 
+    @Override
+    public void close(boolean cleanCacheCommend) {
+        try {
+            serialService.close(cleanCacheCommend);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     //发送指令失败，通知前台, 可能是服务没连接，也可能是服务异常死亡
     private void noticeFront() {
         Log.e("发送指令失败，通知前台，会回调onConnectFailNoReConnect方法, 可能是服务没连接，也可能是服务异常死亡");
@@ -228,6 +237,11 @@ public class SerialConnectService extends SerialConnect {
         @Override
         public void onConnectError() throws RemoteException {
             SerialConnectService.this.onConnectError("serial_service");
+        }
+
+        @Override
+        public void onClose() throws RemoteException {
+            SerialConnectService.this.disConnect();
         }
     };
 }
