@@ -12,7 +12,6 @@ interface ISerialService {
     void writeFile(String path);
     boolean writeBytes(in byte[] bytes);
     void clearCommend();
-    void close(boolean clearCacheCommend);
 
     void setConnectMaxNum(int num);
     void setSendMaxNum(int num);
@@ -20,4 +19,7 @@ interface ISerialService {
     void setDelayTimes(int times);
     void addResponseCommend(String key, String value);
     void addDelayCommend(String value);
+
+
+    void close(boolean clearCacheCommend);
 }
