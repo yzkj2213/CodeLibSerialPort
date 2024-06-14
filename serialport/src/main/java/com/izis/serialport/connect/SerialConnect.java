@@ -262,9 +262,10 @@ public abstract class SerialConnect {
             return;
         }
         boolean result = writeAndFlush(commend);
-        if (result) {
-            sendNum++;//写入成功才累加发送次数，如果棋盘断开，则一直尝试，直到棋盘连上或者清除缓存指令
-        }
+//        if (result) {
+//            sendNum++;//写入成功才累加发送次数，如果棋盘断开，则一直尝试，直到棋盘连上或者清除缓存指令
+//        }
+        sendNum++; //无论是否发送成功，累加发送次数
         if (!hasResponse(commend)) {
             loopNext();
             return;
