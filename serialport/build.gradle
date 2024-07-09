@@ -57,4 +57,5 @@ dependencies {
 
     implementation files('libs/pl2303multilib.jar')
     implementation files('libs/uniwinapi-v1.2-a133.jar')
+    implementation files('libs/uniwinapi-rk356x-android11-v2.2.1.jar')
 }

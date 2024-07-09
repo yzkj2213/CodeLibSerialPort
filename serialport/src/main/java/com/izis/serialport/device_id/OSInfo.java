@@ -46,15 +46,21 @@ public class OSInfo {
      * 获取电子棋盘的设备ID
      */
     public static String getDeviceId() {
-        if (isSZ_A133() || isSZ_M527()) {
-            return getCpuSerial();
+        if(isSZ_M527()) {
+            return getCpuSerialM527();
+        }else if (isSZ_A133()) {
+            return getCpuSerialM133();
         } else {
             return getMacAddress();
         }
     }
 
-    private static String getCpuSerial() {
+    private static String getCpuSerialM133() {
         return UniwinAPI.getProperty("ro.serialno");
+    }
+
+    private static String getCpuSerialM527() {
+        return android.uniwin.UniwinAPI.getProperty("ro.serialno");
     }
 
     private static String getMacAddress() {
