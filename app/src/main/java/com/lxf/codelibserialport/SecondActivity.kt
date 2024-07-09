@@ -5,7 +5,12 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import com.izis.serialport.connect.SerialConnect
+import com.izis.serialport.connect.SerialConnectDirect
 import com.izis.serialport.connect.SerialConnectService
+import java.io.BufferedReader
+import java.io.DataOutputStream
+import java.io.IOException
+import java.io.InputStreamReader
 
 class SecondActivity : AppCompatActivity() {
 
@@ -14,7 +19,7 @@ class SecondActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_second)
 
-        connect = SerialConnectService(this)
+        connect = SerialConnectDirect(this)
         connect.setConnectListener {
             Toast.makeText(this, "连接成功", Toast.LENGTH_SHORT).show()
             connect.addCommend("~LED11#")
@@ -24,6 +29,10 @@ class SecondActivity : AppCompatActivity() {
 
         findViewById<View>(R.id.btnSecDestory).setOnClickListener {
             destroy()
+        }
+        findViewById<View>(R.id.btnCheckConnectMulti).setOnClickListener {
+            val num = checkConnectsError()
+            Toast.makeText(this, num.toString(), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -39,5 +48,34 @@ class SecondActivity : AppCompatActivity() {
     override fun onDestroy() {
         destroy()
         super.onDestroy()
+    }
+
+    private fun checkConnectsError(): Int {
+        try {
+            println("哈哈 开始检测")
+            var num = 0
+            //adb root & adb remount & adb shell lsof /dev/ttyS1
+//            val process = Runtime.getRuntime().exec("lsof /dev/ttyS1")
+            val process = Runtime.getRuntime().exec("su")
+            val os = DataOutputStream(process.outputStream)
+            os.writeBytes("lsof /dev/ttyS1\n")
+            os.writeBytes("exit\n")
+            os.flush()
+
+            process.waitFor()
+            var line: String?
+            val reader = BufferedReader(InputStreamReader(process.inputStream))
+            while (reader.readLine().also { line = it } != null) {
+                println("哈哈$line")
+                if (line?.contains("/dev/ttyS1") == true) {
+                    num++
+                }
+            }
+            reader.close()
+            return num
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+        return 0
     }
 }

@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
+import com.izis.serialport.connect.SerialConnectDirect
 import com.izis.serialport.connect.SerialConnectService
 import com.izis.serialport.device_id.OSInfo
 import com.izis.serialport.listener.SerialReceiveDataListener
@@ -17,10 +18,11 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        println("棋盘：${OSInfo.isBoard(this)}")
 
         val textViewResponse = findViewById<TextView>(R.id.textViewResponse)
 
-        val connect = SerialConnectService(this)
+        val connect = SerialConnectDirect(this)
         connect.setConnectListener {
             Toast.makeText(this, "连接成功", Toast.LENGTH_SHORT).show()
         }

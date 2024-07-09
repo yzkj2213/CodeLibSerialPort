@@ -12,7 +12,16 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
-        android:text="destory"
+        android:text="断开连接"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/btnCheckConnectMulti"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100dp"
+        android:text="检测连接数"
+        app:layout_constraintStart_toStartOf="@+id/btnSecDestory"
+        app:layout_constraintTop_toBottomOf="@+id/btnSecDestory" />
 </androidx.constraintlayout.widget.ConstraintLayout>

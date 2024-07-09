@@ -1,5 +1,8 @@
 package com.izis.serialport.device_id;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.ResolveInfo;
 import android.os.Build;
 
 import com.android.uniwin.UniwinAPI;
@@ -14,14 +17,36 @@ public class OSInfo {
      * 是否是电子棋盘
      */
     public static Boolean isBoard() {
-        return isSZ() || isSZ_A133() || isDW() || isYS();
+        return isSZ() || isSZ_A133()|| isSZ_M527() || isDW() || isYS();
     }
+
+    /**
+     * 是否是电子棋盘，更严格一点的判断：同时检测当前设备是否有安装 系统桌面 app
+     */
+    public static Boolean isBoard(Context context) {
+        boolean hasLauncher = false;
+        Intent intent = new Intent(Intent.ACTION_MAIN);
+        intent.addCategory(Intent.CATEGORY_LAUNCHER);
+        List<ResolveInfo> resolveInfos = context.getPackageManager().queryIntentActivities(intent, 0);
+        for (int i = 0; i < resolveInfos.size(); i++) {
+            ResolveInfo item = resolveInfos.get(i);
+            if (item.activityInfo.packageName.equals("com.example.lxf.laucher2")) {
+                hasLauncher = true;
+                break;
+            }
+        }
+        if (!hasLauncher) {
+            return false;
+        }
+        return isBoard();
+    }
+
 
     /**
      * 获取电子棋盘的设备ID
      */
     public static String getDeviceId() {
-        if (isSZ_A133()) {
+        if (isSZ_A133() || isSZ_M527()) {
             return getCpuSerial();
         } else {
             return getMacAddress();
@@ -59,6 +84,10 @@ public class OSInfo {
 
     private static Boolean isSZ_A133() {
         return Build.VERSION.SDK_INT == 29 && Build.MODEL.equals("UW-M133");
+    }
+
+    private static Boolean isSZ_M527() {
+        return Build.VERSION.SDK_INT == 33 && Build.MODEL.equals("UW-M527");
     }
 
     private static Boolean isSZ() {
