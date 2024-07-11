@@ -102,7 +102,7 @@ public abstract class SerialConnect {
     }
 
     /**
-     * 关闭连接， 默认清除缓存指令
+     * 关闭连接， 默认不清除缓存指令，等待缓存指令发完再关闭，最多等待2s
      */
     public void close() {
         close(false);
@@ -120,7 +120,7 @@ public abstract class SerialConnect {
                 break;
             }
 
-            if (System.currentTimeMillis() - time > 1000) {
+            if (System.currentTimeMillis() - time > 2000) {
                 break;
             }
             try {

@@ -15,18 +15,26 @@ public class OSInfo {
 
     /**
      * 是否是电子棋盘
+     *
+     * @deprecated 使用 {@link #isBoard(Context context)} 代替。
+     * 标记过时原因：
+     * 1. 某些极端的情况下会存在误判，比如用户也使用了同样一款定制的开发板。
+     * 2. 当有新型号的棋盘设备时，需要更改api才能判断
+     *
      */
+    @Deprecated
     public static Boolean isBoard() {
-        return isSZ() || isSZ_A133()|| isSZ_M527() || isDW() || isYS();
+        return isSZ() || isSZ_A133() || isSZ_M527() || isDW() || isYS();
     }
 
     /**
-     * 是否是电子棋盘，更严格一点的判断：同时检测当前设备是否有安装 系统桌面 app
+     * 是否是电子棋盘，通过检测当前设备是否有安装 系统桌面 app判断
      */
     public static Boolean isBoard(Context context) {
         boolean hasLauncher = false;
         Intent intent = new Intent(Intent.ACTION_MAIN);
         intent.addCategory(Intent.CATEGORY_LAUNCHER);
+        intent.addCategory(Intent.CATEGORY_HOME);
         List<ResolveInfo> resolveInfos = context.getPackageManager().queryIntentActivities(intent, 0);
         for (int i = 0; i < resolveInfos.size(); i++) {
             ResolveInfo item = resolveInfos.get(i);
@@ -35,10 +43,7 @@ public class OSInfo {
                 break;
             }
         }
-        if (!hasLauncher) {
-            return false;
-        }
-        return isBoard();
+        return hasLauncher;
     }
 
 
@@ -46,9 +51,9 @@ public class OSInfo {
      * 获取电子棋盘的设备ID
      */
     public static String getDeviceId() {
-        if(isSZ_M527()) {
+        if (isSZ_M527()) {
             return getCpuSerialM527();
-        }else if (isSZ_A133()) {
+        } else if (isSZ_A133()) {
             return getCpuSerialM133();
         } else {
             return getMacAddress();

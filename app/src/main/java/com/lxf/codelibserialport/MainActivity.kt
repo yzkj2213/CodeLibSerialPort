@@ -19,6 +19,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         println("棋盘：${OSInfo.isBoard(this)}")
+        println("棋盘id：${OSInfo.getDeviceId()}")
 
         val textViewResponse = findViewById<TextView>(R.id.textViewResponse)
 
