@@ -19,6 +19,16 @@ public class SerialConnectService extends SerialConnect {
     }
 
     @Override
+    public void close(boolean cleanCacheCommend) {
+        try {
+            connectState = ConnectState.DisConnect;
+            serialService.close(cleanCacheCommend);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
     void openConnect() {
         Intent intent = new Intent();
         intent.setAction("com.lxf.aidl.SerialServer");
@@ -47,15 +57,6 @@ public class SerialConnectService extends SerialConnect {
             noticeFront();
         }
         return false;
-    }
-
-    @Override
-    public void close(boolean cleanCacheCommend) {
-        try {
-            serialService.close(cleanCacheCommend);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     //发送指令失败，通知前台, 可能是服务没连接，也可能是服务异常死亡
