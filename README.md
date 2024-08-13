@@ -63,7 +63,7 @@ OSInfo.getDeviceId();
         }
     }
 
-    implementation 'com.github.yzkj2213:CodeLibSerialPort:1.3.0'
+    implementation 'com.github.yzkj2213:CodeLibSerialPort:1.5.1'
 ```
 
 ```java
