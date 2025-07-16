@@ -50,7 +50,7 @@ public class OSInfo {
      * 过滤掉早期棋盘
      */
     public static boolean isDirectBoard(Context context) {
-        return isBoard(context) && isDirect();
+        return isBoard(context) && !isPl2303();
     }
 
     /**
@@ -97,6 +97,10 @@ public class OSInfo {
             e.printStackTrace();
         }
         return "02:00:00:00:00:00".replace(":", "");
+    }
+
+    private static boolean isPl2303() {
+        return isYS() || isDW();
     }
 
     private static boolean isDirect() {

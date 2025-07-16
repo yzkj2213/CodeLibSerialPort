@@ -78,11 +78,13 @@ public class SerialConnectPl2303 extends SerialConnect {
                     return;
                 }
 
+                if (mSerialMulti == null) return;
                 mSerialMulti.PL2303Enumerate();
 
                 new Timer().schedule(new TimerTask() {
                     @Override
                     public void run() {
+                        if (mSerialMulti == null) return;
                         boolean res = mSerialMulti.PL2303OpenDevByUARTSetting(deviceIndex, mBaudRate, mDataBits, mStopBits, mParity, mFlowControl);
                         if (!res) {
                             Log.e("打开连接失败");
